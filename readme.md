@@ -1,7 +1,11 @@
 # Work-in-Progress: AI-Powered YouTube Script Generator 🚧
 
-Welcome to the AI-Powered YouTube Script Generator project! This web application uses cool AI technology to create captivating and informative YouTube video scripts based on user inputs 😎. While the project is still under development, it has already shown promising results.
+Welcome to the AI-Powered YouTube Script Generator project! This web application uses cool AI technology to create captivating and informative YouTube video scripts based on user inputs 😎.
+While the project is still under development, I am excited to share my progress and invite you to join me on this journey 🤗.
+
 ![Demo GIF](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTRiYjM2NzUzZDUxODg3NWZjNzJmNmFjZTgwMzViMTZiMjMxYzAwNSZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/WGXSVm4WdEYsqLGjb8/giphy.gif)
+
+Takes input, Creates Script, and Generates Images, allows you to generate text-to-speech, audio and play it, and soon to create a video with the script and images, and text-to-speech audio.
 
 ## Introduction
 

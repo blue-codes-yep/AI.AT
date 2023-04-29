@@ -24,11 +24,16 @@ The application is built using Flask, a lightweight Python web framework. It als
 
 ## Future Development
 
-As the project progresses, we plan to add more features and refine the existing ones to provide users with an even better experience. Some potential improvements include:
+As the project progresses, we plan to add more features and fine-tune each component of the application. Some of the planned improvements include:
 
-- Refining the language model to generate more engaging and accurate scripts.
-- Expanding the research capabilities to include more sources (e.g., Wikipedia or news articles).
-- Incorporating user feedback to improve the generated scripts and overall user experience.
-- Developing an option to export the final script and images to various formats, such as a text file or a slideshow presentation.
+- Image collection and processing: We will implement a mechanism to collect and process images for the video. This may involve using image search APIs, such as Google Images or Bing Image Search, to find relevant images based on user input. We will also consider incorporating image processing libraries like OpenCV or PIL to resize or manipulate the images.
 
-We are excited about the potential of this project and look forward to sharing updates as it continues to evolve.
+- Text generation with GPT-4: We aim to develop a module that communicates with the GPT-4 API to generate the text for the voiceover. This module will take user input or predefined templates and generate high-quality scripts using the advanced capabilities of the language model.
+
+- Text-to-speech with Google's Poly API: Another planned module will utilize Google's Poly API to convert the generated text into audio files. We will explore options to cache the audio files for future use and allow users to customize the voice type and speed to enhance the overall quality of the voiceover.
+
+- Video creation: We will leverage video editing libraries such as MoviePy or FFmpeg to combine the generated images and voiceover into a cohesive video. This module will provide options to add effects, transitions, or captions to create visually appealing and engaging videos.
+
+- User interface: We will focus on designing a user-friendly interface for the application. Depending on the application type (web-based or desktop), we will use web frameworks like Flask or Django or GUI libraries like Tkinter or PyQt to create an intuitive and interactive interface that enhances the user experience.
+
+We are excited about the potential of this project and look forward to implementing these features to create a robust and user-friendly AI-driven YouTube script creator.

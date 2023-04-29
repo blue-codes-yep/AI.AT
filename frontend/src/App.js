@@ -4,6 +4,7 @@ import GeneratedText from './components/GeneratedText';
 import ImageResults from './components/ImageResults';
 import MessageHistory from './components/MessageHistory';
 import AudioPlayer from './components/AudioPlayer';
+import './App.css';
 
 const App = () => {
   const [prompt, setPrompt] = useState('');
@@ -66,3 +67,8 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+

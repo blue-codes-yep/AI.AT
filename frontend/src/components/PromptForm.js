@@ -1,14 +1,15 @@
-import React from 'react';
 
 const PromptForm = ({ handleSubmit, setPrompt }) => {
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="form-container">
             <input
                 type="text"
+                className="prompt-input"
                 placeholder="Enter your prompt"
                 onChange={(e) => setPrompt(e.target.value)}
+                required
             />
-            <input type="submit" value="Generate" />
+            <button type="submit">Generate</button>
         </form>
     );
 };

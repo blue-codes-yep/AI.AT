@@ -57,4 +57,5 @@ const AudioPlayer = ({ audioBase64, text, setAudioBase64 }) => {
     );
 };
 
+
 export default AudioPlayer;

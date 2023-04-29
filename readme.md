@@ -1,3 +1,5 @@
+# (( Still WIP placeholder readme ))
+
 # AI-Driven YouTube Script Creator
 
 This project is an AI-driven web application for generating YouTube video scripts based on user input. The application leverages state-of-the-art language models and multiple APIs to create engaging and informative scripts for various topics. It is currently in development but has already demonstrated promising results.

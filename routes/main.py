@@ -1,4 +1,5 @@
 import os
+import base64
 from flask import Blueprint, render_template, request, jsonify
 from apikey import apikey, google_search, google_cse, serp, aws_access_key, aws_secret_key, aws_region
 from collections import deque
@@ -9,7 +10,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
 from utils import get_image_results, synthesize_speech
 from pydub.playback import play
-
+from io import BytesIO
 
 main_bp = Blueprint('main', __name__)
 
@@ -67,8 +68,6 @@ def index():
 
     # Save the response to the message history
     message_history.append({'script': script_memory.buffer, 'adjust': adjust_memory.buffer})
-    audio = synthesize_speech(adjust['script'])
-    play(audio)
 
     response = {
         'generated_text': {
@@ -80,3 +79,20 @@ def index():
     }
 
     return jsonify(response)
+
+@main_bp.route('/api/tts', methods=['POST'])
+def tts():
+    if request.method == 'POST':
+        data = request.get_json()
+        text = data.get('text')
+        audio_base64 = generate_audio_base64(text)
+        return jsonify({'audio_base64': audio_base64})
+
+def generate_audio_base64(text):
+    audio = synthesize_speech(text)
+    buffer = BytesIO()
+    audio.export(buffer, format='wav')
+    buffer.seek(0)
+    raw_data = buffer.read()
+    audio_base64 = base64.b64encode(raw_data).decode('utf-8')
+    return audio_base64

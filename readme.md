@@ -13,12 +13,15 @@ Takes input, Creates Script, and Generates Images, allows you to generate text-t
 
 Given a user's input (a topic or keyword), the application generates a YouTube video script through these steps:
 
-1. Research the topic using Google Search and SerpAPI.
-2. Generate a script with a custom-trained language model (based on OpenAI's GPT).
-3. Edit and refine the script with a casual and engaging tone.
-4. Acquire relevant images for the script using Google Images and SerpAPI.
+    Research the topic using Google Search and SerpAPI.
+    Generate a script with a custom-trained language model (based on OpenAI's GPT).
+    Edit and refine the script with a casual and engaging tone.
+    Acquire relevant images for the script using Google Images and SerpAPI.
+    Generate text-to-speech audio for the script and allow playback.
 
-Built with Flask (backend), React (frontend), and other cool libraries, the application is designed to be user-friendly and fun to use 🎉.
+We are also working on adding the ability to create a video using the generated script, images, and text-to-speech audio.
+
+Built with Flask (backend), React (frontend), and other cool libraries, the application is designed to be user-friendly 🎉.
 
 ## Frontend Tech Stack 🛠
 
@@ -33,10 +36,11 @@ The frontend also includes some handy scripts, such as "start" to run the develo
 
 ## Key Features
 
-- AI-powered script creation: The app harnesses a potent language model to generate compelling and informative scripts for a wide array of topics 🧠.
-- Integrated research: The app incorporates Google Search results to ensure up-to-date and pertinent information for the produced script 🌐.
-- Image acquisition: The app employs SerpAPI to obtain relevant images from Google Images, augmenting the script's visual appeal 🖼.
-- User-friendly design: The app is designed for ease of use, featuring a straightforward input prompt and clear presentation of generated results 😊.
+    AI-powered script creation: The app harnesses a potent language model to generate compelling and informative scripts for a wide array of topics 🧠.
+    Integrated research: The app incorporates Google Search results to ensure up-to-date and pertinent information for the produced script 🌐.
+    Image acquisition: The app employs SerpAPI to obtain relevant images from Google Images, augmenting the script's visual appeal 🖼.
+    Text-to-speech audio: The app generates audio from the script using text-to-speech technology, allowing you to play the audio and get a feel for the final voiceover 🔊.
+    User-friendly design: The app is designed for ease of use, featuring a straightforward input prompt and clear presentation of generated results 😊.
 
 ## Upcoming Enhancements
 

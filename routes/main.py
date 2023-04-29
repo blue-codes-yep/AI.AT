@@ -1,13 +1,15 @@
 import os
 from flask import Blueprint, render_template, request
-from apikey import apikey, google_search, google_cse, serp
+from apikey import apikey, google_search, google_cse, serp, aws_access_key, aws_secret_key, aws_region
 from collections import deque
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
-from utils import get_image_results
+from utils import get_image_results, synthesize_speech
+from pydub.playback import play
+
 
 main_bp = Blueprint('main', __name__)
 
@@ -15,6 +17,11 @@ os.environ["OPENAI_API_KEY"] = apikey
 os.environ["GOOGLE_API_KEY"] = google_search
 os.environ["GOOGLE_CSE_ID"] = google_cse
 os.environ["SERPAPI_API_KEY"] = serp
+os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key
+os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_key
+os.environ["AWS_DEFAULT_REGION"] = aws_region
+
+
 
 # Prompt template for LLM
 script_template = PromptTemplate(
@@ -60,7 +67,8 @@ def index():
         image_results = get_image_results(prompt)
         # Save the response to the message history
         message_history.append({'script': script_memory.buffer, 'adjust': adjust_memory.buffer})
-
+        audio = synthesize_speech(adjust['script'])
+        play(audio)
         return render_template('index.html', generated_text=adjust, message_history=message_history, image_results=image_results)
     else:
         return render_template('index.html', message_history=message_history)

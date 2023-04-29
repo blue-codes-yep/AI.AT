@@ -1,39 +1,47 @@
-# (( Still WIP placeholder readme ))
+# Work-in-Progress: AI-Powered YouTube Script Generator 🚧
 
-# AI-Driven YouTube Script Creator
+Welcome to the AI-Powered YouTube Script Generator project! This web application uses cool AI technology to create captivating and informative YouTube video scripts based on user inputs 😎. While the project is still under development, it has already shown promising results.
+[![Demo Web-App](https://i.imgur.com/C9iTTtO.mp4)](https://i.imgur.com/C9iTTtO.mp4)
 
-This project is an AI-driven web application for generating YouTube video scripts based on user input. The application leverages state-of-the-art language models and multiple APIs to create engaging and informative scripts for various topics. It is currently in development but has already demonstrated promising results.
+## Introduction
 
-## Overview
-
-The application takes a user's input (a topic or a keyword) and generates a YouTube video script by performing the following steps:
+Given a user's input (a topic or keyword), the application generates a YouTube video script through these steps:
 
 1. Research the topic using Google Search and SerpAPI.
-2. Generate a script using a custom-trained language model (based on OpenAI's GPT).
-3. Edit and adjust the script in a fun and relaxed way.
-4. Retrieve relevant images for the script using Google Images and SerpAPI.
+2. Generate a script with a custom-trained language model (based on OpenAI's GPT).
+3. Edit and refine the script with a casual and engaging tone.
+4. Acquire relevant images for the script using Google Images and SerpAPI.
 
-The application is built using Flask, a lightweight Python web framework. It also employs various libraries, such as `langchain` for interacting with the language model and `serpapi` for working with Google Search and Google Images APIs.
+Built with Flask (backend), React (frontend), and other cool libraries, the application is designed to be user-friendly and fun to use 🎉.
 
-## Features
+## Frontend Tech Stack 🛠
 
-- AI-driven script generation: The application uses a powerful language model to create engaging and informative scripts for a wide range of topics.
-- Research integration: The app integrates Google Search results to provide up-to-date and relevant information for the generated script.
-- Image retrieval: The application uses SerpAPI to fetch relevant images from Google Images, enhancing the final script's visual appeal.
-- User-friendly interface: The application is designed to be easy to use, with a simple input prompt and a clear display of generated results.
+Using React for the frontend to make the app responsive and enjoyable to use. Here's a quick overview of our frontend dependencies currently:
 
-## Future Development
+- React: ^18.2.0
+- React-DOM: ^18.2.0
+- Axios: ^1.4.0
+- And some testing libraries to keep our code reliable
 
-As the project progresses, we plan to add more features and fine-tune each component of the application. Some of the planned improvements include:
+The frontend also includes some handy scripts, such as "start" to run the development server, "build" to create the production build, "test" for running tests, and "eject" to customize the configuration (use with caution 😅).
 
-- Image collection and processing: We will implement a mechanism to collect and process images for the video. This may involve using image search APIs, such as Google Images or Bing Image Search, to find relevant images based on user input. We will also consider incorporating image processing libraries like OpenCV or PIL to resize or manipulate the images.
+## Key Features
 
-- Text generation with GPT-4: We aim to develop a module that communicates with the GPT-4 API to generate the text for the voiceover. This module will take user input or predefined templates and generate high-quality scripts using the advanced capabilities of the language model.
+- AI-powered script creation: The app harnesses a potent language model to generate compelling and informative scripts for a wide array of topics 🧠.
+- Integrated research: The app incorporates Google Search results to ensure up-to-date and pertinent information for the produced script 🌐.
+- Image acquisition: The app employs SerpAPI to obtain relevant images from Google Images, augmenting the script's visual appeal 🖼.
+- User-friendly design: The app is designed for ease of use, featuring a straightforward input prompt and clear presentation of generated results 😊.
 
-- Text-to-speech with Google's Poly API: Another planned module will utilize Google's Poly API to convert the generated text into audio files. We will explore options to cache the audio files for future use and allow users to customize the voice type and speed to enhance the overall quality of the voiceover.
+## Upcoming Enhancements
 
-- Video creation: We will leverage video editing libraries such as MoviePy or FFmpeg to combine the generated images and voiceover into a cohesive video. This module will provide options to add effects, transitions, or captions to create visually appealing and engaging videos.
+Plan to continuously improve the project by adding new features and optimizing existing components. Some of our planned updates include:
 
-- User interface: We will focus on designing a user-friendly interface for the application. Depending on the application type (web-based or desktop), we will use web frameworks like Flask or Django or GUI libraries like Tkinter or PyQt to create an intuitive and interactive interface that enhances the user experience.
+- Image collection and manipulation: We intend to develop a mechanism to gather and process images for videos, using image search APIs like Google Images or Bing Image Search, as well as image processing libraries such as OpenCV or PIL 📸.
 
-We are excited about the potential of this project and look forward to implementing these features to create a robust and user-friendly AI-driven YouTube script creator.
+- Text generation with GPT-4: We aim to create a module that interfaces with the GPT-4 API for voiceover text generation, utilizing user input or pre-defined templates to produce high-quality scripts 📝.
+
+- Text-to-speech using Google's Poly API: We plan to build a module that leverages Google's Poly API to convert generated text into audio files, offering options for caching, voice customization, and speed adjustments to improve voiceover quality 🔊.
+
+- Video production: We will use video editing libraries like MoviePy or FFmpeg to merge generated images and voiceovers into a cohesive video, providing options for effects, transitions, and captions to create visually engaging content 🎥.
+
+- User interface enhancement: We will concentrate on crafting a user-friendly interface for the app, utilizing web frameworks such as Flask or Django for web-based applications, or GUI libraries like Tkinter or PyQt for desktop applications to create an intuitive and interactive experience 🌟.

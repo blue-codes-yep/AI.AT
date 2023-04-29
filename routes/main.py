@@ -1,18 +1,20 @@
-from flask import Blueprint, render_template, request
 import os
-from apikey import apikey, google_search, google_cse
+from flask import Blueprint, render_template, request
+from apikey import apikey, google_search, google_cse, serp
+from collections import deque
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
-from collections import deque
+from utils import get_image_results
 
 main_bp = Blueprint('main', __name__)
 
 os.environ["OPENAI_API_KEY"] = apikey
 os.environ["GOOGLE_API_KEY"] = google_search
 os.environ["GOOGLE_CSE_ID"] = google_cse
+os.environ["SERPAPI_API_KEY"] = serp
 
 # Prompt template for LLM
 script_template = PromptTemplate(
@@ -38,7 +40,11 @@ adjust_chain = LLMChain(llm=llm, prompt=adjust_template, verbose=True, output_ke
 # Message history
 message_history = deque(maxlen=10)
 
+
+# Google Search
 search = GoogleSearchAPIWrapper()
+
+
 
 @main_bp.route('/', methods=['GET', 'POST'])
 def index():
@@ -46,17 +52,15 @@ def index():
         prompt = request.form.get('prompt')
 
         # Run the chain with the prompt
-# Run the chain with the prompt
         google_search_result = search.run(prompt)
         script = script_chain({'topic': prompt, 'google_search': google_search_result})
         adjust = adjust_chain({'script': script['script']})
 
-        print(script) 
-        print(adjust) 
-        
+        # Get image results
+        image_results = get_image_results(prompt)
         # Save the response to the message history
         message_history.append({'script': script_memory.buffer, 'adjust': adjust_memory.buffer})
-        
-        return render_template('index.html', generated_text=adjust, message_history=message_history)
+
+        return render_template('index.html', generated_text=adjust, message_history=message_history, image_results=image_results)
     else:
         return render_template('index.html', message_history=message_history)

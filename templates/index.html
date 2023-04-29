@@ -20,7 +20,21 @@
         <h2>Adjusted Script</h2>
         <p>{{ generated_text.adjust }}</p>
     </div>
+
     {% endif %}
+
+    <div class="image-results">
+        <h2>Image Results</h2>
+        <ul>
+            {% for image in image_results %}
+            <li>
+                <a href="{{ image.link }}" target="_blank">
+                    <img src="{{ image.thumbnail }}" alt="{{ image.title }}">
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
     <div class="message-history">
         <h2>Message History</h2>

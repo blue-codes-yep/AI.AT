@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from apikey import apikey, google_search, google_cse, serp, aws_access_key, aws_secret_key, aws_region
 from collections import deque
 from langchain.llms import OpenAI
@@ -52,23 +52,31 @@ message_history = deque(maxlen=10)
 search = GoogleSearchAPIWrapper()
 
 
-
-@main_bp.route('/', methods=['GET', 'POST'])
+@main_bp.route('/api', methods=['POST'])
 def index():
-    if request.method == 'POST':
-        prompt = request.form.get('prompt')
+    data = request.get_json()
+    prompt = data.get('prompt')
 
-        # Run the chain with the prompt
-        google_search_result = search.run(prompt)
-        script = script_chain({'topic': prompt, 'google_search': google_search_result})
-        adjust = adjust_chain({'script': script['script']})
+    # Run the chain with the prompt
+    google_search_result = search.run(prompt)
+    script = script_chain({'topic': prompt, 'google_search': google_search_result})
+    adjust = adjust_chain({'script': script['script']})
 
-        # Get image results
-        image_results = get_image_results(prompt)
-        # Save the response to the message history
-        message_history.append({'script': script_memory.buffer, 'adjust': adjust_memory.buffer})
-        audio = synthesize_speech(adjust['script'])
-        play(audio)
-        return render_template('index.html', generated_text=adjust, message_history=message_history, image_results=image_results)
-    else:
-        return render_template('index.html', message_history=message_history)
+    # Get image results
+    image_results = get_image_results(prompt)
+
+    # Save the response to the message history
+    message_history.append({'script': script_memory.buffer, 'adjust': adjust_memory.buffer})
+    audio = synthesize_speech(adjust['script'])
+    play(audio)
+
+    response = {
+        'generated_text': {
+            'script': adjust['script'],
+            'adjust': adjust['adjust'],
+        },
+        'message_history': list(message_history),
+        'image_results': image_results,
+    }
+
+    return jsonify(response)

@@ -27,4 +27,9 @@ def synthesize_speech(text):
     # Load the audio data with PyDub
     audio = AudioSegment.from_file(audio_data, format="raw", frame_rate=16000, channels=1, sample_width=2)
 
-    return audio
+    # Convert the audio to WAV format and return it
+    buffer = BytesIO()
+    audio.export(buffer, format="wav")
+    buffer.seek(0)
+
+    return buffer

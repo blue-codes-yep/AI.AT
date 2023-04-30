@@ -4,6 +4,7 @@ import GeneratedText from './components/GeneratedText';
 import ImageResults from './components/ImageResults';
 import MessageHistory from './components/MessageHistory';
 import AudioPlayer from './components/AudioPlayer';
+import createVideo from './components/CreateVideo';
 import './App.css';
 
 const App = () => {
@@ -52,6 +53,11 @@ const App = () => {
     }
   };
 
+  const handleCreateVideo = async () => {
+    // Pass imageResults, audioBase64, and generatedText to the createVideo function
+    await createVideo(imageResults, audioBase64, generatedText.script);
+  };
+
   return (
     <div className="App">
       <h1>Generated Text</h1>
@@ -62,6 +68,7 @@ const App = () => {
       )}
       <ImageResults imageResults={imageResults} />
       <MessageHistory messageHistory={messageHistory} />
+      <button onClick={handleCreateVideo}>Create Video</button>
     </div>
   );
 };

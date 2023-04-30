@@ -8,7 +8,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
-from utils import get_image_results, synthesize_speech
+from utils import get_image_results, synthesize_speech, create_video
 from pydub.playback import play
 from io import BytesIO
 
@@ -90,9 +90,25 @@ def tts():
 
 def generate_audio_base64(text):
     audio = synthesize_speech(text)
-    buffer = BytesIO()
-    audio.export(buffer, format='wav')
-    buffer.seek(0)
-    raw_data = buffer.read()
+    raw_data = audio.read()
     audio_base64 = base64.b64encode(raw_data).decode('utf-8')
     return audio_base64
+
+
+@main_bp.route('/api/video', methods=['POST'])
+def create_video_endpoint():
+    data = request.get_json()
+    image_urls = data['imageResults']
+    audio_base64 = data['audioBase64']
+    text = data['generatedText']
+
+    # Call the create_video function
+    output_file = 'temp/video.mp4'
+    create_video(image_urls, audio_base64, text, output_file)
+
+    # Return the video file
+    with open(output_file, 'rb') as f:
+        video_base64 = base64.b64encode(f.read()).decode('utf-8')
+    os.remove(output_file)
+
+    return jsonify({'video_base64': video_base64})

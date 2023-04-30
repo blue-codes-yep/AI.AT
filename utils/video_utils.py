@@ -2,7 +2,6 @@ import moviepy.editor as mp
 import requests
 import base64
 import imageio
-import config_moviepy
 import tempfile
 import os
 from moviepy.video.fx.all import resize
@@ -73,7 +72,7 @@ def create_video(image_urls, audio_base64, text, output_file):
     with open(output_path, 'rb') as file:
         video_base64 = base64.b64encode(file.read()).decode('utf-8')
 
-    # Don't forget to remove the temporary audio file at the end
+    
     os.remove(audio_temp_file.name)
 
     return video_base64

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 const AudioPlayer = ({ audioBase64, text, setAudioBase64 }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef(new Audio());
+    const [volume, setVolume] = useState(1);
 
     useEffect(() => {
         if (isPlaying) {
@@ -38,6 +39,12 @@ const AudioPlayer = ({ audioBase64, text, setAudioBase64 }) => {
         }
     };
 
+    const handleVolumeChange = (event) => {
+        const newVolume = event.target.value;
+        setVolume(newVolume);
+        audioRef.current.volume = newVolume;
+    };
+
     return (
         <div className="audio-player">
             <button onClick={handlePlayPause}>{isPlaying ? 'Pause' : 'Play'}</button>
@@ -53,6 +60,17 @@ const AudioPlayer = ({ audioBase64, text, setAudioBase64 }) => {
                     Generate Audio
                 </button>
             )}
+
+            <label htmlFor="volume-control">Volume:</label>
+            <input
+                id="volume-control"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={handleVolumeChange}
+            />
         </div>
     );
 };

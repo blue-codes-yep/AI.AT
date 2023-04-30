@@ -62,8 +62,11 @@ def create_video(image_urls, audio_base64, text, output_file):
     # Set the audio for the composite clip
     final_clip = composite_clip.set_audio(audioclip)
 
+    temp_dir = Path(__file__).resolve().parent / 'temp'
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
     # Get the absolute path to the output file
-    output_path = Path(__file__).resolve().parent / output_file
+    output_path = temp_dir / 'video.mp4'
 
     # Write the video to the specified output file
     final_clip.write_videofile(str(output_path), codec='libx264', temp_audiofile='temp_audio.m4a', remove_temp=True, audio_codec='aac', fps=24)

@@ -1,5 +1,6 @@
 import os
 import base64
+from pathlib import Path
 from flask import Blueprint, render_template, request, jsonify
 from apikey import apikey, google_search, google_cse, serp, aws_access_key, aws_secret_key, aws_region
 from collections import deque
@@ -103,7 +104,7 @@ def create_video_endpoint():
     text = data['generatedText']
 
     # Call the create_video function
-    output_file = 'temp/video.mp4'
+    output_file = Path('G:/AI Application/utils/temp/video.mp4')
     create_video(image_urls, audio_base64, text, output_file)
 
     # Return the video file

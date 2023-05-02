@@ -24,6 +24,33 @@ def resize_image(image, width=1280, height=720):
     image = image.resize((new_width, new_height), Image.ANTIALIAS)
     return image
 
+
+def create_subtitle_clip(text, start_time, end_time, video_size):
+    subtitle = TextClip(
+        txt=text,
+        fontsize=24,
+        color='white',
+        size=video_size,
+        bg_color='transparent',
+        font='C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF',  
+        stroke_color=None,
+        stroke_width=0.5,
+    ).set_position(("center", "bottom")).set_start(start_time).set_end(end_time)
+
+    return subtitle
+
+
+def add_subtitles_to_video(video, subtitle_timings):
+    video_size = video.size
+
+    subtitle_clips = [
+        create_subtitle_clip(text, start, end, video_size)
+        for start, end, text in subtitle_timings
+    ]
+
+    final_video = CompositeVideoClip([video] + subtitle_clips)
+    return final_video
+
 def create_video(image_urls, audio_base64, script, output_file):
     clips = []
     sentences = split_sentences(script)
@@ -74,8 +101,8 @@ def create_video(image_urls, audio_base64, script, output_file):
 
             subtitle_clips.append(subtitle_clip)
 
-    subtitles = CompositeVideoClip(subtitle_clips)
-    composite_clip = CompositeVideoClip([concatenated_clip, subtitles])
+    video_with_subtitles = add_subtitles_to_video(concatenated_clip, subtitle_timings)
+    composite_clip = CompositeVideoClip([video_with_subtitles])
 
     temp_dir = Path(__file__).resolve().parent / 'temp'
     temp_dir.mkdir(parents=True, exist_ok=True)

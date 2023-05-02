@@ -55,46 +55,17 @@ const App = () => {
     }
   };
 
-  const fetchGeneratedVideo = async () => {
-    const response = await fetch("http://localhost:5000/api/video", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        generatedText: generatedText.script,
-        imageResults: imageResults,
-        audioBase64: audioBase64,
-      }),
-    });
-
-    if (response.ok) {
-      const arrayBuffer = await response.arrayBuffer();
-      return arrayBuffer;
-    } else {
-      throw new Error("Failed to generate video");
-    }
-  };
-
-
-  const handleGenerateVideo = async () => {
-    try {
-      const arrayBuffer = await fetchGeneratedVideo();
-      const blob = new Blob([arrayBuffer], { type: "video/mp4" });
-      const videoUrl = URL.createObjectURL(blob);
-      setVideoSrc(videoUrl);
-    } catch (error) {
-      console.error("Failed to generate video", error);
-    }
-  };
-
-
   return (
     <div className="App">
       <h1>Generated Text</h1>
       <PromptForm handleSubmit={handleSubmit} setPrompt={setPrompt} />
-      <VideoComponent imageResults={imageResults} audioBase64={audioBase64} generatedText={generatedText.script} videoSrc={videoSrc} />
-      <button onClick={handleGenerateVideo}>Create Video</button>
+      <VideoComponent
+        imageResults={imageResults}
+        audioBase64={audioBase64}
+        generatedText={generatedText.script}
+        videoSrc={videoSrc}
+        setVideoSrc={setVideoSrc}
+      />
       <AudioPlayer audioBase64={audioBase64} text={generatedText.script} setAudioBase64={setAudioBase64} />
       {generatedText.script && (
         <GeneratedText generatedText={generatedText} handleTextToSpeech={handleTextToSpeech} />

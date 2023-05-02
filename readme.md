@@ -3,9 +3,9 @@
 Welcome to the AI-Powered YouTube Script Generator project! This web application uses cool AI technology to create captivating and informative YouTube video scripts based on user inputs 😎.
 
 The app takes input, creates a script, generates images, allows you to generate text-to-speech audio and play it, and we're working on adding video creation with the script, images, and text-to-speech audio. While the project is still under development, it has already shown promising results.
-Demo Web-App:
+/n Demo Web-App:
 
-![Demo GIF](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTRiYjM2NzUzZDUxODg3NWZjNzJmNmFjZTgwMzViMTZiMjMxYzAwNSZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/WGXSVm4WdEYsqLGjb8/giphy.gif)
+![Demo GIF](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2I5NmI5NzJiZjFhOTk0ZjY4ZTk1ZWYzOTMwODU3OTcwMzVlZGE3MiZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/0bNcv5pk6GRqc9zXUT/giphy.gif)
 
 Takes input, Creates Script, and Generates Images, allows you to generate text-to-speech, audio and play it, and soon to create a video with the script and images, and text-to-speech audio.
 

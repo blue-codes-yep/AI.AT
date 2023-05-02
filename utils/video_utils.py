@@ -27,9 +27,10 @@ def resize_image(image, width=1280, height=720):
 
 
 def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
-    fontsize = 28
+    fontsize = 34  # Increase the fontsize for better text quality
     padding = 10
     background_opacity = 128  # Change this value (0-255) to adjust the opacity of the subtitle background
+    move_up_pixels = 50.9  # The number of pixels to move the subtitle up from the bottom
 
     # Create the text clip
     subtitle_text = TextClip(
@@ -38,7 +39,7 @@ def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
         color='white',
         font='C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF',
         stroke_color='black',
-        stroke_width=0.2,
+        stroke_width=0.3,  # Increase the stroke_width for better edge contrast
     )
 
     # Create a semi-transparent background for the subtitle
@@ -48,8 +49,8 @@ def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
 
     # Combine the text and background clips
     subtitle = CompositeVideoClip([
-        subtitle_background.set_position(("center", "bottom"), relative=True),
-        subtitle_text.set_position(("center", "bottom"), relative=True)
+        subtitle_background.set_position(("center", video_size[1] - background_size[1] - move_up_pixels)),
+        subtitle_text.set_position(("center", video_size[1] - text_size[1] - move_up_pixels))
     ], size=video_size).set_start(start_time).set_end(end_time)
 
     subtitle.fps = fps  # Set the FPS attribute for the subtitle clip

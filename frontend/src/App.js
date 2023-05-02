@@ -4,7 +4,7 @@ import GeneratedText from './components/GeneratedText';
 import ImageResults from './components/ImageResults';
 import MessageHistory from './components/MessageHistory';
 import AudioPlayer from './components/AudioPlayer';
-import createVideo from './components/CreateVideo';
+import VideoComponent from './components/VideoComponent';
 import './App.css';
 
 const App = () => {
@@ -13,6 +13,8 @@ const App = () => {
   const [imageResults, setImageResults] = useState([]);
   const [messageHistory, setMessageHistory] = useState([]);
   const [audioBase64, setAudioBase64] = useState('');
+  const [videoSrc, setVideoSrc] = useState(null);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,22 +55,53 @@ const App = () => {
     }
   };
 
-  const handleCreateVideo = async () => {
-    // Pass imageResults, audioBase64, and generatedText to the createVideo function
-    await createVideo(imageResults, audioBase64, generatedText.script);
+  const fetchGeneratedVideo = async () => {
+    const response = await fetch("http://localhost:5000/api/video", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        generatedText: generatedText.script,
+        imageResults: imageResults,
+        audioBase64: audioBase64,
+      }),
+    });
+
+    if (response.ok) {
+      const arrayBuffer = await response.arrayBuffer();
+      return arrayBuffer;
+    } else {
+      throw new Error("Failed to generate video");
+    }
   };
+
+
+  const handleGenerateVideo = async () => {
+    try {
+      const arrayBuffer = await fetchGeneratedVideo();
+      const blob = new Blob([arrayBuffer], { type: "video/mp4" });
+      const videoUrl = URL.createObjectURL(blob);
+      setVideoSrc(videoUrl);
+    } catch (error) {
+      console.error("Failed to generate video", error);
+    }
+  };
+
 
   return (
     <div className="App">
       <h1>Generated Text</h1>
       <PromptForm handleSubmit={handleSubmit} setPrompt={setPrompt} />
+      <VideoComponent imageResults={imageResults} audioBase64={audioBase64} generatedText={generatedText.script} videoSrc={videoSrc} />
+      <button onClick={handleGenerateVideo}>Create Video</button>
       <AudioPlayer audioBase64={audioBase64} text={generatedText.script} setAudioBase64={setAudioBase64} />
       {generatedText.script && (
         <GeneratedText generatedText={generatedText} handleTextToSpeech={handleTextToSpeech} />
       )}
       <ImageResults imageResults={imageResults} />
       <MessageHistory messageHistory={messageHistory} />
-      <button onClick={handleCreateVideo}>Create Video</button>
+
     </div>
   );
 };

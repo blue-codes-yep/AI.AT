@@ -9,7 +9,7 @@ from moviepy.video.VideoClip import TextClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from io import BytesIO
 from pathlib import Path
-
+from .s3_utils import upload_to_s3
 
 def create_video(image_urls, audio_base64, text, output_file):
     """Creates a video from a list of image URLs, an audio file, and some text.
@@ -50,32 +50,35 @@ def create_video(image_urls, audio_base64, text, output_file):
     # Create composite clip
     composite_clip = CompositeVideoClip([concatenated_clip, subtitles])
 
+    temp_dir = Path(__file__).resolve().parent / 'temp'
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
     # Save audio_base64 content to a temporary file
     audio_data = base64.b64decode(audio_base64)
-    audio_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
-    audio_temp_file.write(audio_data)
-    audio_temp_file.close()
+    audio_temp_file = temp_dir / 'temp_audio.wav'
+    with open(audio_temp_file, 'wb') as f:
+        f.write(audio_data)
 
     # Use the temporary file path for mp.AudioFileClip
-    audioclip = mp.AudioFileClip(audio_temp_file.name)
+    audioclip = mp.AudioFileClip(str(audio_temp_file))
 
     # Set the audio for the composite clip
     final_clip = composite_clip.set_audio(audioclip)
-
-    temp_dir = Path(__file__).resolve().parent / 'temp'
-    temp_dir.mkdir(parents=True, exist_ok=True)
 
     # Get the absolute path to the output file
     output_path = temp_dir / 'video.mp4'
 
     # Write the video to the specified output file
-    final_clip.write_videofile(str(output_path), codec='libx264', temp_audiofile='temp_audio.m4a', remove_temp=True, audio_codec='aac', fps=24)
+    temp_audio_path = temp_dir / 'temp_audio.m4a'
+    final_clip.write_videofile(str(output_path), codec='libx264', temp_audiofile=str(temp_audio_path), remove_temp=False, audio_codec='aac', fps=24)
 
-    # Convert the video file to a base64-encoded string
-    with open(output_path, 'rb') as file:
-        video_base64 = base64.b64encode(file.read()).decode('utf-8')
-
+    video_url = upload_to_s3(str(output_path), str(output_file))
     
-    os.remove(audio_temp_file.name)
+    # Clean up the temporary audio file after uploading the video to S3
+    if audio_temp_file.exists():
+        audio_temp_file.unlink()
+        
+    if temp_audio_path.exists():
+        temp_audio_path.unlink()
 
-    return video_base64
+    return video_url

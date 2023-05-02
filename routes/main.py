@@ -1,7 +1,7 @@
 import os
 import base64
 from pathlib import Path
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, send_from_directory, make_response
 from apikey import apikey, google_search, google_cse, serp, aws_access_key, aws_secret_key, aws_region
 from collections import deque
 from langchain.llms import OpenAI
@@ -9,11 +9,17 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
-from utils import get_image_results, synthesize_speech, create_video
+from utils import get_image_results, synthesize_speech, create_video, upload_to_s3
 from pydub.playback import play
 from io import BytesIO
 
 main_bp = Blueprint('main', __name__)
+
+import os
+
+# Define the temporary directory path
+temp_dir = os.path.join(os.path.dirname(__file__), 'utils', 'temp')
+
 
 os.environ["OPENAI_API_KEY"] = apikey
 os.environ["GOOGLE_API_KEY"] = google_search
@@ -95,7 +101,6 @@ def generate_audio_base64(text):
     audio_base64 = base64.b64encode(raw_data).decode('utf-8')
     return audio_base64
 
-
 @main_bp.route('/api/video', methods=['POST'])
 def create_video_endpoint():
     data = request.get_json()
@@ -104,12 +109,19 @@ def create_video_endpoint():
     text = data['generatedText']
 
     # Call the create_video function
-    output_file = Path('G:/AI Application/utils/temp/video.mp4')
+    output_path = Path("G:/AI Application/utils/temp")
+    output_file = output_path / 'video.mp4'
+
     create_video(image_urls, audio_base64, text, output_file)
 
-    # Return the video file
-    with open(output_file, 'rb') as f:
-        video_base64 = base64.b64encode(f.read()).decode('utf-8')
-    os.remove(output_file)
+    # Save the video to AWS S3
+    object_name = f"{output_file}"  # Adjust this to your preferred naming convention
+    s3_video_url = upload_to_s3(output_file, object_name)
 
-    return jsonify({'video_base64': video_base64})
+    # Upload the video to S3
+    s3_video_url = upload_to_s3(str(output_file), f"videos/{output_file.name}")
+    os.remove(output_file)  
+
+
+    # Return the video URL in the response
+    return jsonify({'video_url': s3_video_url})

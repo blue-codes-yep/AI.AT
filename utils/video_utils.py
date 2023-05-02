@@ -1,7 +1,7 @@
 import os
 import moviepy.editor as mp
 import textwrap
-from moviepy.editor import TextClip, CompositeVideoClip
+from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
 from moviepy.video.fx.resize import resize
 import requests
 from io import BytesIO
@@ -25,17 +25,34 @@ def resize_image(image, width=1280, height=720):
     return image
 
 
-def create_subtitle_clip(text, start_time, end_time, video_size):
-    subtitle = TextClip(
+
+def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
+    fontsize = 28
+    padding = 10
+    background_opacity = 128  # Change this value (0-255) to adjust the opacity of the subtitle background
+
+    # Create the text clip
+    subtitle_text = TextClip(
         txt=text,
-        fontsize=24,
+        fontsize=fontsize,
         color='white',
-        size=video_size,
-        bg_color='transparent',
-        font='C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF',  
-        stroke_color=None,
-        stroke_width=0.5,
-    ).set_position(("center", "bottom")).set_start(start_time).set_end(end_time)
+        font='C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF',
+        stroke_color='black',
+        stroke_width=0.2,
+    )
+
+    # Create a semi-transparent background for the subtitle
+    text_size = subtitle_text.size
+    background_size = (text_size[0] + 2 * padding, text_size[1] + 2 * padding)
+    subtitle_background = ColorClip(size=background_size, color=(0, 0, 0, background_opacity))
+
+    # Combine the text and background clips
+    subtitle = CompositeVideoClip([
+        subtitle_background.set_position(("center", "bottom"), relative=True),
+        subtitle_text.set_position(("center", "bottom"), relative=True)
+    ], size=video_size).set_start(start_time).set_end(end_time)
+
+    subtitle.fps = fps  # Set the FPS attribute for the subtitle clip
 
     return subtitle
 

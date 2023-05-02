@@ -3,7 +3,7 @@
 Welcome to the AI-Powered YouTube Script Generator project! This web application uses cool AI technology to create captivating and informative YouTube video scripts based on user inputs 😎.
 
 The app takes input, creates a script, generates images, allows you to generate text-to-speech audio and play it, and we're working on adding video creation with the script, images, and text-to-speech audio. While the project is still under development, it has already shown promising results.
-/n Demo Web-App:
+Demo Web-App:
 
 ![Demo GIF](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2I5NmI5NzJiZjFhOTk0ZjY4ZTk1ZWYzOTMwODU3OTcwMzVlZGE3MiZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/0bNcv5pk6GRqc9zXUT/giphy.gif)
 
@@ -22,6 +22,25 @@ Given a user's input (a topic or keyword), the application generates a YouTube v
 We are also working on adding the ability to create a video using the generated script, images, and text-to-speech audio.
 
 Built with Flask (backend), React (frontend), and other cool libraries, the application is designed to be user-friendly 🎉.
+
+## Currentnly Working On 🚨:
+
+1. Fixing Subtitles:
+
+   - [ ] Ensure the generated script is accurate and matches the spoken words.
+   - [ ] Review and correct any synchronization problems in the subtitles.
+   - [ ] Address formatting or styling issues in the subtitles.
+
+2. Fixing Image Quality:
+
+   - [ ] Evaluate the quality of the acquired images for the script.
+   - [ ] Enhance the image quality by adjusting brightness, contrast, and other relevant settings.
+   - [ ] Ensure the images are visually appealing and clear.
+
+3. Fixing Video Dimensions:
+   - [ ] Determine the desired video dimensions based on project requirements.
+   - [ ] Crop or resize the images to match the target aspect ratio.
+   - [ ] Verify that the modified video dimensions align with the intended visual presentation.
 
 ## Frontend Tech Stack 🛠
 

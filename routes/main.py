@@ -120,7 +120,7 @@ def create_video_endpoint():
 
     # Upload the video to S3
     s3_video_url = upload_to_s3(str(output_file), f"videos/{output_file.name}")
-
+    os.remove(output_file)  
     print("Output file:", output_file)
     print("S3 Video URL:", s3_video_url)
     # Return the video URL in the response

@@ -1,5 +1,6 @@
 import os
 import moviepy.editor as mp
+import textwrap
 from moviepy.editor import TextClip, CompositeVideoClip
 from moviepy.video.fx.resize import resize
 import requests
@@ -45,20 +46,33 @@ def create_video(image_urls, audio_base64, script, output_file):
 
 
     subtitle_clips = []
+    wrapper = textwrap.TextWrapper(width=150)  # Adjust the width to change how much text is displayed at once
+
     for start, end, sentence in subtitle_timings:
         if not sentence.strip():  # skip empty sentences
             continue
 
-        print(f"Creating subtitle clip: start={start}, end={end}, sentence={sentence}")
-        subtitle_clip = TextClip(
-            sentence,
-            fontsize=24,
-            color='white',
-            size=(concatenated_clip.w, 100),
-            bg_color='black',
-            print_cmd=True
-        ).set_position(('center', 'bottom')).set_start(start).set_end(end)
-        subtitle_clips.append(subtitle_clip)
+        wrapped_text = wrapper.fill(text=sentence)
+        wrapped_lines = wrapped_text.split("\n")
+
+        line_duration = (end - start) / len(wrapped_lines)
+
+        for idx, line in enumerate(wrapped_lines):
+            line_start = start + (line_duration * idx)
+            line_end = line_start + line_duration
+
+            print(f"Creating subtitle clip: start={line_start}, end={line_end}, sentence={line}")
+
+            subtitle_clip = TextClip(
+                line,
+                fontsize=24,
+                color='white',
+                size=(concatenated_clip.w, 100),
+                bg_color='black',
+                print_cmd=True
+            ).set_position(('center', 'bottom')).set_start(line_start).set_end(line_end)
+
+            subtitle_clips.append(subtitle_clip)
 
     subtitles = CompositeVideoClip(subtitle_clips)
     composite_clip = CompositeVideoClip([concatenated_clip, subtitles])

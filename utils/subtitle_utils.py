@@ -20,16 +20,15 @@ def split_text_into_chunks(text, max_length):
     chunks.append(' '.join(current_chunk))
     return chunks
 
-
 def split_sentences(text):
-    sentences = [sent.text for sent in nlp.tokenizer(text)]
+    doc = nlp(text)
+    sentences = [sent.text for sent in doc.sents]
     return sentences
 
 def get_audio_duration(audio_data: BytesIO):
     audio_data.seek(0)
     audio = AudioSegment.from_file(audio_data, format="wav")
     return len(audio) / 1000
-
 
 def generate_subtitle_timings(sentences, synthesize_speech, max_chunk_length=45):
     timings = []

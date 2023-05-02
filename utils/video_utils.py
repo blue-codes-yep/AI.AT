@@ -70,7 +70,7 @@ def create_video(image_urls, audio_base64, text, output_file):
 
     # Write the video to the specified output file
     temp_audio_path = temp_dir / 'temp_audio.m4a'
-    final_clip.write_videofile(str(output_path), codec='libx265', temp_audiofile=str(temp_audio_path), remove_temp=False, audio_codec='aac', fps=24)
+    final_clip.write_videofile(str(output_path), codec='libx264', temp_audiofile=str(temp_audio_path), remove_temp=False, audio_codec='aac', fps=24)
 
 
     # Read the video file as an ArrayBuffer

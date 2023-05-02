@@ -21,7 +21,7 @@ def create_video(image_urls, audio_base64, text, output_file):
         output_file: The name of the output file.
 
     Returns:
-        The video as a base64-encoded string.
+        The video as a array buffer.
     """
 
     clips = []
@@ -70,15 +70,20 @@ def create_video(image_urls, audio_base64, text, output_file):
 
     # Write the video to the specified output file
     temp_audio_path = temp_dir / 'temp_audio.m4a'
-    final_clip.write_videofile(str(output_path), codec='libx264', temp_audiofile=str(temp_audio_path), remove_temp=False, audio_codec='aac', fps=24)
+    final_clip.write_videofile(str(output_path), codec='libx265', temp_audiofile=str(temp_audio_path), remove_temp=False, audio_codec='aac', fps=24)
 
-    video_url = upload_to_s3(str(output_path), str(output_file))
-    
-    # Clean up the temporary audio file after uploading the video to S3
+
+    # Read the video file as an ArrayBuffer
+    with open(output_file, 'rb') as f:
+        video_data = f.read()
+
+    # Remove the temporary audio file
     if audio_temp_file.exists():
         audio_temp_file.unlink()
-        
+
     if temp_audio_path.exists():
         temp_audio_path.unlink()
 
-    return video_url
+
+
+    return video_data

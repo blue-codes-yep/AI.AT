@@ -9,13 +9,11 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
-from utils import get_image_results, synthesize_speech, create_video, upload_to_s3
+from utils import get_image_results, synthesize_speech, create_video, upload_to_s3, split_sentences, generate_subtitle_timings
 from pydub.playback import play
 from io import BytesIO
 
 main_bp = Blueprint('main', __name__)
-
-import os
 
 # Define the temporary directory path
 temp_dir = os.path.join(os.path.dirname(__file__), 'utils', 'temp')
@@ -47,7 +45,7 @@ script_memory = ConversationBufferMemory(input_key='topic', memory_key='chat_his
 adjust_memory = ConversationBufferMemory(input_key='script', memory_key='chat_history')
 
 # LLMs
-llm = OpenAI(temperature=0.1)
+llm = OpenAI(temperature=0.4)
 script_chain = LLMChain(llm=llm, prompt=script_template, verbose=True, output_key='script', memory=script_memory)
 adjust_chain = LLMChain(llm=llm, prompt=adjust_template, verbose=True, output_key='adjust', memory=adjust_memory)
 

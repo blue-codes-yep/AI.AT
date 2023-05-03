@@ -48,7 +48,7 @@ def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
         color="white",
         font="C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF",
         stroke_color="black",
-        stroke_width=0.3,  # Increase the stroke_width for better edge contrast
+        stroke_width=0.8,  # Increase the stroke_width for better edge contrast
     )
 
     # Create a semi-transparent background for the subtitle
@@ -136,21 +136,19 @@ def create_video(image_urls, audio_base64, script, output_file):
     temp_audio_path = temp_dir / "temp_audio.m4a"
     final_clip.write_videofile(
         str(output_path),
-        codec="libx264",
         temp_audiofile=str(temp_audio_path),
         remove_temp=False,
         audio_codec="aac",
         fps=24,
-        threads=8,
+        threads=12,
         ffmpeg_params=[
             "-preset",
             "fast",
-            "-profile:v",
-            "main",
-            "-level:v",
-            "4.0",
+            "-b:v",
+            "10M",
         ],
     )
+
     with open(output_path, "rb") as f:
         video_data = f.read()
 

@@ -2,6 +2,7 @@ import os
 import moviepy.editor as mp
 import textwrap
 from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
+from moviepy.video.io.ffmpeg_writer import FFMPEG_VideoWriter
 from moviepy.video.fx.resize import resize
 import requests
 from io import BytesIO
@@ -11,6 +12,7 @@ import numpy as np
 from pathlib import Path
 from utils.subtitle_utils import split_sentences, generate_subtitle_timings
 from utils.polly_utils import synthesize_speech
+
 
 def resize_image(image, width=1280, height=720):
     aspect_ratio = image.width / image.height
@@ -25,121 +27,120 @@ def resize_image(image, width=1280, height=720):
     return image
 
 
-
 def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
     fontsize = 34  # Increase the fontsize for better text quality
     padding = 10
     background_opacity = 128  # Change this value (0-255) to adjust the opacity of the subtitle background
-    move_up_pixels = 50.9  # The number of pixels to move the subtitle up from the bottom
+    move_up_pixels = (
+        50.9  # The number of pixels to move the subtitle up from the bottom
+    )
 
     # Create the text clip
     subtitle_text = TextClip(
         txt=text,
         fontsize=fontsize,
-        color='white',
-        font='C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF',
-        stroke_color='black',
+        color="white",
+        font="C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF",
+        stroke_color="black",
         stroke_width=0.3,  # Increase the stroke_width for better edge contrast
     )
 
     # Create a semi-transparent background for the subtitle
     text_size = subtitle_text.size
     background_size = (text_size[0] + 2 * padding, text_size[1] + 2 * padding)
-    subtitle_background = ColorClip(size=background_size, color=(0, 0, 0, background_opacity))
+    subtitle_background = ColorClip(
+        size=background_size, color=(0, 0, 0, background_opacity)
+    )
 
     # Combine the text and background clips
-    subtitle = CompositeVideoClip([
-        subtitle_background.set_position(("center", video_size[1] - background_size[1] - move_up_pixels)),
-        subtitle_text.set_position(("center", video_size[1] - text_size[1] - move_up_pixels))
-    ], size=video_size).set_start(start_time).set_end(end_time)
+    subtitle = (
+        CompositeVideoClip(
+            [
+                subtitle_background.set_position(
+                    ("center", video_size[1] - background_size[1] - move_up_pixels)
+                ),
+                subtitle_text.set_position(
+                    ("center", video_size[1] - text_size[1] - move_up_pixels)
+                ),
+            ],
+            size=video_size,
+        )
+        .set_start(start_time)
+        .set_end(end_time)
+    )
 
     subtitle.fps = fps  # Set the FPS attribute for the subtitle clip
 
     return subtitle
 
 
-def add_subtitles_to_video(video, subtitle_timings):
+def add_subtitles_to_video(video, subtitle_timings, subtitle_clips):
     video_size = video.size
-
-    subtitle_clips = [
-        create_subtitle_clip(text, start, end, video_size)
-        for start, end, text in subtitle_timings
-    ]
 
     final_video = CompositeVideoClip([video] + subtitle_clips)
     return final_video
+
 
 def create_video(image_urls, audio_base64, script, output_file):
     clips = []
     sentences = split_sentences(script)
     subtitle_timings = generate_subtitle_timings(sentences, synthesize_speech)
-    
-    background = Image.new('RGB', (1280, 720), color='black')
-    
+    background = Image.new("RGB", (1280, 720), color="black")
+
     for url in image_urls:
-        print(f"Processing image: {url['thumbnail']}")
-        image_data = url['thumbnail']
+        image_data = url["thumbnail"]
         response = requests.get(image_data)
         image = Image.open(BytesIO(response.content))
         image = resize_image(image, width=1280, height=720)
         img_bg = background.copy()
-        img_bg.paste(image, (int((background.width - image.width) / 2), int((background.height - image.height) / 2)))
+        img_bg.paste(
+            image,
+            (
+                int((background.width - image.width) / 2),
+                int((background.height - image.height) / 2),
+            ),
+        )
         img_bg_clip = mp.ImageClip(np.array(img_bg)).set_duration(5)
         clips.append(img_bg_clip)
 
     concatenated_clip = mp.concatenate_videoclips(clips)
 
+    subtitle_clips = [
+        create_subtitle_clip(text, start, end, concatenated_clip.size)
+        for start, end, text in subtitle_timings
+    ]
 
-    subtitle_clips = []
-    wrapper = textwrap.TextWrapper(width=150)  # Adjust the width to change how much text is displayed at once
+    final_clip = add_subtitles_to_video(
+        concatenated_clip, subtitle_timings, subtitle_clips
+    )
 
-    for start, end, sentence in subtitle_timings:
-        if not sentence.strip():  # skip empty sentences
-            continue
-
-        wrapped_text = wrapper.fill(text=sentence)
-        wrapped_lines = wrapped_text.split("\n")
-
-        line_duration = (end - start) / len(wrapped_lines)
-
-        for idx, line in enumerate(wrapped_lines):
-            line_start = start + (line_duration * idx)
-            line_end = line_start + line_duration
-
-            print(f"Creating subtitle clip: start={line_start}, end={line_end}, sentence={line}")
-
-            subtitle_clip = TextClip(
-                line,
-                fontsize=24,
-                color='white',
-                size=(concatenated_clip.w, 100),
-                bg_color='black',
-                print_cmd=True
-            ).set_position(('center', 'bottom')).set_start(line_start).set_end(line_end)
-
-            subtitle_clips.append(subtitle_clip)
-
-    video_with_subtitles = add_subtitles_to_video(concatenated_clip, subtitle_timings)
-    composite_clip = CompositeVideoClip([video_with_subtitles])
-
-    temp_dir = Path(__file__).resolve().parent / 'temp'
+    temp_dir = Path(__file__).resolve().parent / "temp"
     temp_dir.mkdir(parents=True, exist_ok=True)
 
     audio_data = base64.b64decode(audio_base64)
-    audio_temp_file = temp_dir / 'temp_audio.wav'
-    with open(audio_temp_file, 'wb') as f:
+    audio_temp_file = temp_dir / "temp_audio.wav"
+    with open(audio_temp_file, "wb") as f:
         f.write(audio_data)
 
     audioclip = mp.AudioFileClip(str(audio_temp_file))
 
-    final_clip = composite_clip.set_audio(audioclip)
+    final_clip = final_clip.set_audio(audioclip)
 
-    output_path = temp_dir / 'video.mp4'
+    output_path = temp_dir / "video.mp4"
 
-    temp_audio_path = temp_dir / 'temp_audio.m4a'
-    final_clip.write_videofile(str(output_path), codec='libx264', temp_audiofile=str(temp_audio_path), remove_temp=False, audio_codec='aac', fps=24)
+    temp_audio_path = temp_dir / "temp_audio.m4a"
+    final_clip.write_videofile(
+        str(output_path),
+        codec="h264_nvenc",
+        temp_audiofile=str(temp_audio_path),
+        remove_temp=False,
+        audio_codec="aac",
+        fps=24,
+        threads=8,
+        ffmpeg_params=["-preset", "fast"],
+    )
 
-    with open(output_file, 'rb') as f:
+    with open(output_path, "rb") as f:
         video_data = f.read()
 
     if audio_temp_file.exists():

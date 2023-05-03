@@ -1,7 +1,6 @@
 import moviepy.editor as mp
 import concurrent.futures
 from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
-from moviepy.video.io.ffmpeg_writer import FFMPEG_VideoWriter
 from moviepy.video.fx.resize import resize
 import requests
 from io import BytesIO
@@ -147,9 +146,9 @@ def create_video(image_urls, audio_base64, script, output_file):
             "-preset",
             "fast",
             "-profile:v",
-            "main",  # Add the profile
+            "main",
             "-level:v",
-            "4.0",  # Add the level
+            "4.0",
         ],
     )
     with open(output_path, "rb") as f:

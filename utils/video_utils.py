@@ -1,6 +1,5 @@
-import os
 import moviepy.editor as mp
-import textwrap
+import concurrent.futures
 from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
 from moviepy.video.io.ffmpeg_writer import FFMPEG_VideoWriter
 from moviepy.video.fx.resize import resize
@@ -24,6 +23,14 @@ def resize_image(image, width=1280, height=720):
         new_width = int(new_height * aspect_ratio)
 
     image = image.resize((new_width, new_height), Image.ANTIALIAS)
+    return image
+
+
+def download_and_resize_image(url):
+    image_data = url["thumbnail"]
+    response = requests.get(image_data)
+    image = Image.open(BytesIO(response.content))
+    image = resize_image(image, width=1280, height=720)
     return image
 
 
@@ -87,11 +94,10 @@ def create_video(image_urls, audio_base64, script, output_file):
     subtitle_timings = generate_subtitle_timings(sentences, synthesize_speech)
     background = Image.new("RGB", (1280, 720), color="black")
 
-    for url in image_urls:
-        image_data = url["thumbnail"]
-        response = requests.get(image_data)
-        image = Image.open(BytesIO(response.content))
-        image = resize_image(image, width=1280, height=720)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        images = list(executor.map(download_and_resize_image, image_urls))
+
+    for image in images:
         img_bg = background.copy()
         img_bg.paste(
             image,
@@ -131,15 +137,21 @@ def create_video(image_urls, audio_base64, script, output_file):
     temp_audio_path = temp_dir / "temp_audio.m4a"
     final_clip.write_videofile(
         str(output_path),
-        codec="h264_nvenc",
+        codec="libx264",
         temp_audiofile=str(temp_audio_path),
         remove_temp=False,
         audio_codec="aac",
         fps=24,
         threads=8,
-        ffmpeg_params=["-preset", "fast"],
+        ffmpeg_params=[
+            "-preset",
+            "fast",
+            "-profile:v",
+            "main",  # Add the profile
+            "-level:v",
+            "4.0",  # Add the level
+        ],
     )
-
     with open(output_path, "rb") as f:
         video_data = f.read()
 

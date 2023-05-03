@@ -5,10 +5,10 @@ const ImageResults = ({ imageResults }) => {
         <div className="image-results">
             <h2>Image Results</h2>
             <ul>
-                {imageResults.map((image, index) => (
+                {imageResults.map((imageUrl, index) => (
                     <li key={index}>
-                        <a href={image.link} target="_blank" rel="noopener noreferrer">
-                            <img src={image.thumbnail} alt={image.title} />
+                        <a href={imageUrl} target="_blank" rel="noopener noreferrer">
+                            <img src={imageUrl} alt={`Image ${index + 1}`} />
                         </a>
                     </li>
                 ))}

@@ -26,11 +26,10 @@ def resize_image(image, width=1280, height=720):
 
 
 def download_and_resize_image(url):
-    image_data = url["thumbnail"]
-    response = requests.get(image_data)
+    response = requests.get(url)
     image = Image.open(BytesIO(response.content))
-    image = resize_image(image, width=1280, height=720)
-    return image
+    resized_image = image.resize((1280, 720))  # Adjust the size as per your requirement
+    return resized_image
 
 
 def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
@@ -48,7 +47,7 @@ def create_subtitle_clip(text, start_time, end_time, video_size, fps=24):
         color="white",
         font="C:\\USERS\\BLUE\\APPDATA\\LOCAL\\MICROSOFT\\WINDOWS\\FONTS\\ROBOTOSLAB-VARIABLEFONT_WGHT.TTF",
         stroke_color="black",
-        stroke_width=0.8,  # Increase the stroke_width for better edge contrast
+        stroke_width=0.9,  # Increase the stroke_width for better edge contrast
     )
 
     # Create a semi-transparent background for the subtitle

@@ -60,12 +60,13 @@ const App = () => {
       <h1>Generated Text</h1>
       <PromptForm handleSubmit={handleSubmit} setPrompt={setPrompt} />
       <VideoComponent
-        imageResults={imageResults}
-        audioBase64={audioBase64}
-        generatedText={generatedText.script}
         videoSrc={videoSrc}
         setVideoSrc={setVideoSrc}
+        imageResults={imageResults}
+        audioBase64={audioBase64}
+        generatedText={generatedText}
       />
+
       <AudioPlayer audioBase64={audioBase64} text={generatedText.script} setAudioBase64={setAudioBase64} />
       {generatedText.script && (
         <GeneratedText generatedText={generatedText} handleTextToSpeech={handleTextToSpeech} />

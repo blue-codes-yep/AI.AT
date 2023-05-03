@@ -1,6 +1,25 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import videojs from 'video.js';
+import 'video.js/dist/video-js.min.css';
 
 const VideoComponent = ({ videoSrc, generatedText, imageResults, audioBase64, setVideoSrc }) => {
+    const videoRef = useRef();
+
+    useEffect(() => {
+        if (videoRef.current && videoSrc) {
+            const player = videojs(videoRef.current, {
+                autoplay: true,
+                controls: true,
+            });
+
+            player.src({ type: 'video/mp4', src: videoSrc });
+
+            return () => {
+                player.dispose();
+            };
+        }
+    }, [videoSrc]);
+
 
     const fetchGeneratedVideo = async () => {
         const response = await fetch("http://localhost:5000/api/video", {
@@ -34,11 +53,11 @@ const VideoComponent = ({ videoSrc, generatedText, imageResults, audioBase64, se
 
     return (
         <div>
+            <div data-vjs-player>
+                <video ref={videoRef} className="video-js" />
+            </div>
             {videoSrc ? (
-                <video controls>
-                    <source src={videoSrc} type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
+                <p>Video is available. Press play to watch.</p>
             ) : (
                 <p>No video available.</p>
             )}

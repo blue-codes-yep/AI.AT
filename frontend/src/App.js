@@ -3,7 +3,6 @@ import PromptForm from './components/PromptForm';
 import GeneratedText from './components/GeneratedText';
 import ImageResults from './components/ImageResults';
 import MessageHistory from './components/MessageHistory';
-import AudioPlayer from './components/AudioPlayer';
 import VideoComponent from './components/VideoComponent';
 import './App.css';
 
@@ -18,40 +17,50 @@ const App = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/api", {
+    const response1 = await fetch("http://localhost:5000/api", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prompt: prompt }),
+      body: JSON.stringify({
+        prompt: prompt,
+      }),
     });
-    const data = await response.json();
+    const data1 = await response1.json();
 
-    // Update the state with the received data
-    setGeneratedText(data.generated_text);
-    setImageResults(data.image_results);
-    setMessageHistory(data.message_history);
-    setAudioBase64('');
-  };
+    setGeneratedText(data1.generated_text);
+    setImageResults(data1.image_results);
+    setMessageHistory(data1.message_history);
 
-  const handleTextToSpeech = async (text) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/tts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: text }),
-      });
+    const response3 = await fetch("http://localhost:5000/api/tts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: data1.generated_text.script,
+      }),
+    });
+    const data3 = await response3.json();
 
-      if (response.ok) {
-        const data = await response.json();
-        setAudioBase64(data.audio_base64);
-      } else {
-        console.error("Failed to synthesize speech");
-      }
-    } catch (error) {
-      console.error("Error fetching speech synthesis API", error);
+    setAudioBase64(data3.audio_base64);
+
+    const response2 = await fetch("http://localhost:5000/api/video", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        image_results: data1.image_results,
+        audioBase64: data3.audio_base64,
+        generatedText: data1.generated_text,
+      }),
+    });
+    const data2 = await response2.json();
+
+    if (response2.ok) {
+      const videoSrc = data2.video_url;
+      setVideoSrc(videoSrc);
     }
   };
 
@@ -67,9 +76,9 @@ const App = () => {
         generatedText={generatedText}
       />
 
-      <AudioPlayer audioBase64={audioBase64} text={generatedText.script} setAudioBase64={setAudioBase64} />
+
       {generatedText.script && (
-        <GeneratedText generatedText={generatedText} handleTextToSpeech={handleTextToSpeech} />
+        <GeneratedText generatedText={generatedText} handleSubmit={handleSubmit} />
       )}
       <ImageResults imageResults={imageResults} />
       <MessageHistory messageHistory={messageHistory} />
@@ -79,8 +88,3 @@ const App = () => {
 };
 
 export default App;
-
-
-
-
-

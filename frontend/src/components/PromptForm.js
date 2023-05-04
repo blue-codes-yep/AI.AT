@@ -1,5 +1,6 @@
 
-const PromptForm = ({ handleSubmit, setPrompt }) => {
+const PromptForm = ({ handleSubmit, setPrompt, imageResults, audioBase64, generatedText, setVid }) => {
+
     return (
         <form onSubmit={handleSubmit} className="form-container">
             <input

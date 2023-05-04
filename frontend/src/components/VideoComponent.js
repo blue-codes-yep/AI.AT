@@ -20,30 +20,7 @@ const VideoComponent = ({ videoSrc, setVideoSrc, imageResults, audioBase64, gene
         }
     }, [videoSrc]);
 
-    const handleGenerateVideo = async () => {
-        try {
-            const response = await fetch("http://localhost:5000/api/video", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    image_results: imageResults,
-                    audioBase64: audioBase64,
-                    generatedText: generatedText,
-                }),
-            });
 
-            if (response.ok) {
-                const data = await response.json();
-                setVideoSrc(data.video_url);
-            } else {
-                console.error("Failed to generate video");
-            }
-        } catch (error) {
-            console.error("Error generating video", error);
-        }
-    };
     return (
         <div>
             <div data-vjs-player>
@@ -54,7 +31,6 @@ const VideoComponent = ({ videoSrc, setVideoSrc, imageResults, audioBase64, gene
             ) : (
                 <p>No video available.</p>
             )}
-            <button onClick={handleGenerateVideo}>Create Video</button>
         </div>
     );
 };

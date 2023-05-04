@@ -14,18 +14,19 @@ polly_client = boto3.client(
     region_name=aws_region,
 )
 
+
 def synthesize_speech(text):
     response = polly_client.synthesize_speech(
-        Text=text,
-        OutputFormat="pcm",
-        VoiceId="Joanna"
+        Text=text, OutputFormat="pcm", VoiceId="Joanna"
     )
 
     # Save the synthesized speech to a BytesIO object
     audio_data = BytesIO(response["AudioStream"].read())
 
     # Load the audio data with PyDub
-    audio = AudioSegment.from_file(audio_data, format="raw", frame_rate=16000, channels=1, sample_width=2)
+    audio = AudioSegment.from_file(
+        audio_data, format="raw", frame_rate=16000, channels=1, sample_width=2
+    )
 
     # Convert the audio to WAV format and return it
     buffer = BytesIO()

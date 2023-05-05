@@ -17,6 +17,7 @@ const App = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const response1 = await fetch("http://localhost:5000/api", {
       method: "POST",
       headers: {
@@ -30,7 +31,6 @@ const App = () => {
 
     setGeneratedText(data1.generated_text);
     setImageResults(data1.image_results);
-    setMessageHistory(data1.message_history);
 
     const response3 = await fetch("http://localhost:5000/api/tts", {
       method: "POST",
@@ -38,7 +38,7 @@ const App = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        text: data1.generated_text.script,
+        text: data1.generated_text.refine,
       }),
     });
     const data3 = await response3.json();
@@ -61,8 +61,14 @@ const App = () => {
     if (response2.ok) {
       const videoSrc = data2.video_url;
       setVideoSrc(videoSrc);
+
+      // Fetch the updated message history and other necessary data
+      const response4 = await fetch("http://localhost:5000/api");
+      const data4 = await response4.json();
+      setMessageHistory(data4.message_history);
     }
   };
+
 
   return (
     <div className="App">
@@ -77,7 +83,7 @@ const App = () => {
       />
 
 
-      {generatedText.script && (
+      {generatedText.refine && (
         <GeneratedText generatedText={generatedText} handleSubmit={handleSubmit} />
       )}
       <ImageResults imageResults={imageResults} />

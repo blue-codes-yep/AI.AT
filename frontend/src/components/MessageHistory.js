@@ -8,10 +8,7 @@ const MessageHistory = ({ messageHistory }) => {
                 {messageHistory.map((message, index) => (
                     <li key={index}>
                         <div>
-                            <strong>Script:</strong> {message.script}
-                        </div>
-                        <div>
-                            <strong>Adjusted:</strong> {message.adjust}
+                            <strong>Script:</strong> {message.refine}
                         </div>
                     </li>
                 ))}

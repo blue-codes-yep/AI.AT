@@ -65,6 +65,8 @@ def index():
 
     response = {
         "generated_text": {
+            "script": chain_outputs["script"],
+            "adjusted": chain_outputs["adjusted_script"],
             "refine": chain_outputs["refined_script"],
         },
         "image_results": image_results,

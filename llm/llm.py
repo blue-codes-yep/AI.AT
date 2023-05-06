@@ -48,8 +48,9 @@ refine_template = PromptTemplate(
         "script",
         "adjusted_script",
     ],
-    template="Refine the adjusted script staying on topic to make it more charismatic: {script}\n\n{adjusted_script}",
+    template="Refine the adjusted script staying on topic to make it more charismatic:\n\n-=-=-=- Original Script -=-=-=-\n{script}\n\n-=-=-=- Adjusted Script -=-=-=-\n{adjusted_script}",
 )
+
 
 # LLM Chains
 script_chain = LLMChain(
@@ -91,8 +92,11 @@ def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
     )
     print("Refine chain output:", refine)
 
+    refine_output = refine[refine_chain.output_key]
+    refined_script = refine_output.split("-=-=-=- Adjusted Script -=-=-=-")[-1].strip()
+
     return {
         "script": script[script_chain.output_key],
         "adjusted_script": adjust[adjust_chain.output_key],
-        "refined_script": refine[refine_chain.output_key],
+        "refined_script": refined_script,
     }

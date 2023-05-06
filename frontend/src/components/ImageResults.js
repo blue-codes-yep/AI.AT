@@ -1,24 +1,56 @@
 import React from 'react';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { Typography, Box } from '@mui/material';
+import { IconButton } from '@mui/material';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const ImageResults = ({ imageResults }) => {
+    const arrowStyles = {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: '50%',
+        padding: '5px',
+        zIndex: 2,
+    };
+
+    const CustomArrowPrev = (onClickHandler, hasPrev, label) => (
+        <IconButton
+            onClick={onClickHandler}
+            disabled={!hasPrev}
+            title={label}
+            style={{ ...arrowStyles, position: 'absolute', left: 15, top: 'calc(50% - 20px)' }}
+        >
+            <ArrowBackIosIcon style={{ color: 'white' }} />
+        </IconButton>
+    );
+
+    const CustomArrowNext = (onClickHandler, hasNext, label) => (
+        <IconButton
+            onClick={onClickHandler}
+            disabled={!hasNext}
+            title={label}
+            style={{ ...arrowStyles, position: 'absolute', right: 15, top: 'calc(50% - 20px)' }}
+        >
+            <ArrowForwardIosIcon style={{ color: 'white' }} />
+        </IconButton>
+    );
+
     return (
-        <Box my={4}>
-            <Typography variant="h4" align="center" gutterBottom>
-                Image Results
-            </Typography>
-            <Carousel showThumbs={false} showStatus={false}>
+        <div className="image-results">
+            <h2>Image Results</h2>
+            <Carousel
+                showArrows
+                showThumbs={false}
+                renderArrowPrev={CustomArrowPrev}
+                renderArrowNext={CustomArrowNext}
+            >
                 {imageResults.map((imageUrl, index) => (
                     <div key={index}>
-                        <a href={imageUrl} target="_blank" rel="noopener noreferrer">
-                            <img src={imageUrl} alt={`Image ${index + 1}`} />
-                        </a>
+                        <img src={imageUrl} alt={`Image ${index + 1}`} />
                     </div>
                 ))}
             </Carousel>
-        </Box>
+        </div>
     );
 };
 

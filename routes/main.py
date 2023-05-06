@@ -49,7 +49,7 @@ def index():
 
     # Call the run_all_chains function
     chain_outputs = run_all_chains(prompt, google_search_result)
-
+    print("Chain outputs:", chain_outputs)
     # Get the summary
     summary = summary_memory.predict_new_summary(
         conv_memory.chat_memory.messages[-2:], summary_memory.buffer
@@ -75,9 +75,6 @@ def index():
 
     # Debug print statements
     print("Response:", response)
-    print("Prompt:", prompt)
-    print("Google search result:", google_search_result)
-    print("Chain outputs:", chain_outputs)
 
     return json.dumps(response)
 

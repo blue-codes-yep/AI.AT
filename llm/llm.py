@@ -45,10 +45,12 @@ adjust_template = PromptTemplate(
 # Add a new prompt template for further adjustments
 refine_template = PromptTemplate(
     input_variables=[
+        "script",
         "adjusted_script",
     ],
-    template="Refine the adjusted script staying on topic to make it more charismatic: {adjusted_script}",
+    template="Refine the adjusted script staying on topic to make it more charismatic: {script}\n\n{adjusted_script}",
 )
+
 # LLM Chains
 script_chain = LLMChain(
     llm=llm, prompt=script_template, verbose=True, output_key="script"
@@ -68,18 +70,26 @@ def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
     conv_memory.save_context(
         {"topic": prompt}, {"script": script[script_chain.output_key]}
     )
+    print("Script chain output:", script)
 
     adjust = adjust_chain({"script": script[script_chain.output_key]})
     conv_memory.save_context(
         {"script": script[script_chain.output_key]},
         {"adjusted_script": adjust[adjust_chain.output_key]},
     )
+    print("Adjust chain output:", adjust)
 
-    refine = refine_chain({"adjusted_script": adjust[adjust_chain.output_key]})
+    refine = refine_chain(
+        {
+            "script": script[script_chain.output_key],
+            "adjusted_script": adjust[adjust_chain.output_key],
+        }
+    )
     conv_memory.save_context(
         {"adjusted_script": adjust[adjust_chain.output_key]},
         {"refined_script": refine[refine_chain.output_key]},
     )
+    print("Refine chain output:", refine)
 
     return {
         "script": script[script_chain.output_key],

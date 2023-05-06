@@ -9,10 +9,10 @@ from apikey import (
     aws_region,
 )
 import os
-from typing import Dict, Optional
+from typing import Dict
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain, SequentialChain
-from langchain.memory import ConversationBufferMemory, ConversationSummaryBufferMemory
+from langchain.chains import LLMChain
+from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
 
 os.environ["OPENAI_API_KEY"] = apikey
@@ -28,7 +28,6 @@ llm = OpenAI(temperature=0.8, max_tokens=2048)
 
 # Memory
 conv_memory = ConversationBufferMemory()
-summary_memory = ConversationSummaryBufferMemory(llm=llm)
 
 
 # Prompt template for LLM

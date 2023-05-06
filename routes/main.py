@@ -7,7 +7,6 @@ from llm import (
     run_all_chains,
     search,
     conv_memory,
-    summary_memory,
 )
 
 from flask import (
@@ -49,11 +48,6 @@ def index():
 
     # Call the run_all_chains function
     chain_outputs = run_all_chains(prompt, google_search_result)
-
-    # Get the summary
-    summary = summary_memory.predict_new_summary(
-        conv_memory.chat_memory.messages[-2:], summary_memory.buffer
-    )
 
     # Get image results
     image_results = get_unsplash_image_urls(prompt)

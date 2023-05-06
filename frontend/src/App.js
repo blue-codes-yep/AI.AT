@@ -76,7 +76,7 @@ const App = () => {
       <Container maxWidth="md">
         <Box my={4}>
           <Typography variant="h3" align="center" gutterBottom>
-            Generated Text
+            Input script topic
           </Typography>
           {messageHistory.length > 0 && (
             <MessageHistory messageHistory={messageHistory} />

@@ -20,27 +20,7 @@ h1 {
   margin-bottom: 30px;
 }
 
-button {
-  background-color: #4CAF50;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-.audio-player,
 .generated-text,
-.image-results,
 .message-history {
   background-color: #ffffff;
   padding: 20px;
@@ -50,13 +30,6 @@ button:hover {
   margin-bottom: 30px;
 }
 
-.audio-player h2,
-.generated-text h2,
-.image-results h2,
-.message-history h2 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-}
 
 .form-container {
   display: flex;
@@ -75,17 +48,4 @@ button:hover {
 }
 
 
-
-.audio-player {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.audio-player button {
-  width: auto; /* Adjust the width to wrap around the content */
-  padding: 10px 20px;
-  margin-top: 10px;
-}
 

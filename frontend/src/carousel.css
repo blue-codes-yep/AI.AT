@@ -1,54 +1,17 @@
-.carousel .control-prev.control-arrow,
-.carousel .control-next.control-arrow {
-  position: absolute;
-  top: 50%;
-  width: 40px;
-  height: 40px;
-  margin-top: -20px;
-  cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  color: white;
-  font-size: 24px;
-  text-align: center;
-  font-weight: bold;
-}
-
-.carousel .control-prev.control-arrow:hover,
-.carousel .control-next.control-arrow:hover {
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
-.carousel .control-prev.control-arrow {
-  left: 15px;
-}
-
-.carousel .control-next.control-arrow {
-  right: 15px;
-}
-
-.carousel .thumbs-wrapper {
-  margin: 20px;
-}
-
-.carousel .thumbs {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-}
-
-.carousel .thumb {
-  width: 100px;
-  margin-right: 5px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-}
-
-.carousel .thumb.selected,
-.carousel .thumb:hover {
-  border: 1px solid #333;
-}
+.image-results {
+    margin: 16px 0;
+  }
+  
+  .carousel {
+    position: relative;
+  }
+  
+  .arrowStyles {
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+  }
+  
+  .arrowStyles:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  

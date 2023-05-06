@@ -46,7 +46,17 @@ const ImageResults = ({ imageResults }) => {
             >
                 {imageResults.map((imageUrl, index) => (
                     <div key={index}>
-                        <img src={imageUrl} alt={`Image ${index + 1}`} />
+                        <img
+                            src={imageUrl}
+                            alt={`Image ${index + 1}`}
+                            style={{
+                                maxWidth: '892px',
+                                maxHeight: '572px',
+                                objectFit: 'contain',
+                                width: '100%',
+                                height: '100%',
+                            }}
+                        />
                     </div>
                 ))}
             </Carousel>

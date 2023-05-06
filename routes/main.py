@@ -71,7 +71,11 @@ def index():
         "message_history": message_history_list,
     }
 
-    print("Response:", response)  # Add this line
+    # Debug print statements
+    print("Response:", response)
+    print("Prompt:", prompt)
+    print("Google search result:", google_search_result)
+    print("Chain outputs:", chain_outputs)
 
     return json.dumps(response)
 

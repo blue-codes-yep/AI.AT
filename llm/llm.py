@@ -39,7 +39,7 @@ script_template = PromptTemplate(
 
 adjust_template = PromptTemplate(
     input_variables=["script"],
-    template="Edit, and adjust the script in a fun, relaxed way: {script}",
+    template="Edit, and adjust the script in a fun, relaxed way: {script}\n\n-=-=-=- Adjusted Script -=-=-=-",
 )
 
 # Add a new prompt template for further adjustments
@@ -48,9 +48,8 @@ refine_template = PromptTemplate(
         "script",
         "adjusted_script",
     ],
-    template="Refine the adjusted script staying on topic to make it more charismatic:\n\n-=-=-=- Original Script -=-=-=-\n{script}\n\n-=-=-=- Adjusted Script -=-=-=-\n{adjusted_script}",
+    template="Refine the adjusted script staying on topic to make it more charismatic:\n{script}\n\n-=-=-=- Adjusted Script -=-=-=-\n{adjusted_script}\n\n-=-=-=- Refined Script -=-=-=-",
 )
-
 
 # LLM Chains
 script_chain = LLMChain(
@@ -79,6 +78,8 @@ def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
         {"adjusted_script": adjust[adjust_chain.output_key]},
     )
     print("Adjust chain output:", adjust)
+    adjust_output = adjust[adjust_chain.output_key]
+    adjusted_script = adjust_output.split("-=-=-=- Adjusted Script -=-=-=-")[-1].strip()
 
     refine = refine_chain(
         {
@@ -93,10 +94,10 @@ def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
     print("Refine chain output:", refine)
 
     refine_output = refine[refine_chain.output_key]
-    refined_script = refine_output.split("-=-=-=- Adjusted Script -=-=-=-")[-1].strip()
+    refined_script = refine_output.split("-=-=-=- Refined Script -=-=-=-")[-1].strip()
 
     return {
         "script": script[script_chain.output_key],
-        "adjusted_script": adjust[adjust_chain.output_key],
+        "adjusted_script": adjusted_script,
         "refined_script": refined_script,
     }

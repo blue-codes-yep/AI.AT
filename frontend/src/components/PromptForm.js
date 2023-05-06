@@ -1,17 +1,23 @@
+import React from 'react';
+import { TextField, Button, Box } from '@mui/material';
 
-const PromptForm = ({ handleSubmit, setPrompt, imageResults, audioBase64, generatedText, setVid }) => {
-
+const PromptForm = ({ handleSubmit, setPrompt }) => {
     return (
-        <form onSubmit={handleSubmit} className="form-container">
-            <input
-                type="text"
-                className="prompt-input"
-                placeholder="Enter your prompt"
-                onChange={(e) => setPrompt(e.target.value)}
-                required
-            />
-            <button type="submit">Generate</button>
-        </form>
+        <Box my={4}>
+            <form onSubmit={handleSubmit}>
+                <TextField
+                    label="Enter your prompt"
+                    fullWidth
+                    variant="outlined"
+                    onChange={(e) => setPrompt(e.target.value)}
+                />
+                <Box mt={2}>
+                    <Button variant="contained" color="primary" type="submit">
+                        Submit
+                    </Button>
+                </Box>
+            </form>
+        </Box>
     );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Box, Typography } from '@mui/material';
 import PromptForm from './components/PromptForm';
 import GeneratedText from './components/GeneratedText';
 import ImageResults from './components/ImageResults';
@@ -72,23 +73,29 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>Generated Text</h1>
-      <PromptForm handleSubmit={handleSubmit} setPrompt={setPrompt} />
-      <VideoComponent
-        videoSrc={videoSrc}
-        setVideoSrc={setVideoSrc}
-        imageResults={imageResults}
-        audioBase64={audioBase64}
-        generatedText={generatedText}
-      />
+      <Container maxWidth="md">
+        <Box my={4}>
+          <Typography variant="h3" align="center" gutterBottom>
+            Generated Text
+          </Typography>
+          {messageHistory.length > 0 && (
+            <MessageHistory messageHistory={messageHistory} />
+          )}
+          <PromptForm handleSubmit={handleSubmit} setPrompt={setPrompt} />
+          <VideoComponent
+            videoSrc={videoSrc}
+            setVideoSrc={setVideoSrc}
+            imageResults={imageResults}
+            audioBase64={audioBase64}
+            generatedText={generatedText}
+          />
 
-
-      {generatedText.refine && (
-        <GeneratedText generatedText={generatedText} handleSubmit={handleSubmit} />
-      )}
-      <ImageResults imageResults={imageResults} />
-      <MessageHistory messageHistory={messageHistory} />
-
+          {generatedText.refine && (
+            <GeneratedText generatedText={generatedText} handleSubmit={handleSubmit} />
+          )}
+          {imageResults.length > 0 && <ImageResults imageResults={imageResults} />}
+        </Box>
+      </Container>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 from apikey import (
     apikey,
     google_search,
@@ -24,7 +25,7 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_key
 os.environ["AWS_DEFAULT_REGION"] = aws_region
 
 # LLMs
-llm = OpenAI(temperature=0.8, max_tokens=2048)
+llm = OpenAI(temperature=0.3, max_tokens=2048, model_name="gpt-4")
 
 # Memory
 conv_memory = ConversationBufferMemory()

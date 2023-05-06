@@ -15,11 +15,10 @@ const App = () => {
   const [audioBase64, setAudioBase64] = useState('');
   const [videoSrc, setVideoSrc] = useState(null);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response1 = await fetch("http://localhost:5000/api", {
+    const initialApiResponse = await fetch("http://localhost:5000/api", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,48 +27,47 @@ const App = () => {
         prompt: prompt,
       }),
     });
-    const data1 = await response1.json();
+    const initialApiData = await initialApiResponse.json();
 
-    setGeneratedText(data1.generated_text);
-    setImageResults(data1.image_results);
+    setGeneratedText(initialApiData.generated_text);
+    setImageResults(initialApiData.image_results);
 
-    const response3 = await fetch("http://localhost:5000/api/tts", {
+    const ttsResponse = await fetch("http://localhost:5000/api/tts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        text: data1.generated_text.refine,
+        text: initialApiData.generated_text.refine,
       }),
     });
-    const data3 = await response3.json();
+    const ttsData = await ttsResponse.json();
 
-    setAudioBase64(data3.audio_base64);
+    setAudioBase64(ttsData.audio_base64);
 
-    const response2 = await fetch("http://localhost:5000/api/video", {
+    const videoResponse = await fetch("http://localhost:5000/api/video", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        image_results: data1.image_results,
-        audioBase64: data3.audio_base64,
-        generatedText: data1.generated_text,
+        image_results: initialApiData.image_results,
+        audioBase64: ttsData.audio_base64,
+        generatedText: initialApiData.generated_text,
       }),
     });
-    const data2 = await response2.json();
+    const videoData = await videoResponse.json();
 
-    if (response2.ok) {
-      const videoSrc = data2.video_url;
+    if (videoResponse.ok) {
+      const videoSrc = videoData.video_url;
       setVideoSrc(videoSrc);
 
       // Fetch the updated message history and other necessary data
-      const response4 = await fetch("http://localhost:5000/api");
-      const data4 = await response4.json();
-      setMessageHistory(data4.message_history);
+      const updatedApiResponse = await fetch("http://localhost:5000/api");
+      const updatedApiData = await updatedApiResponse.json();
+      setMessageHistory(updatedApiData.message_history);
     }
   };
-
 
   return (
     <div className="App">
@@ -98,6 +96,10 @@ const App = () => {
       </Container>
     </div>
   );
+
+
 };
+
+
 
 export default App;

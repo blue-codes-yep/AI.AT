@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.min.css';
+import { Box } from '@mui/material';
 
 const VideoComponent = ({ videoSrc, setVideoSrc, imageResults, audioBase64, generatedText }) => {
     const videoRef = useRef();
@@ -8,7 +9,7 @@ const VideoComponent = ({ videoSrc, setVideoSrc, imageResults, audioBase64, gene
     useEffect(() => {
         if (videoRef.current && videoSrc) {
             const player = videojs(videoRef.current, {
-                autoplay: true,
+                autoplay: false,
                 controls: true,
             });
 
@@ -20,9 +21,8 @@ const VideoComponent = ({ videoSrc, setVideoSrc, imageResults, audioBase64, gene
         }
     }, [videoSrc]);
 
-
     return (
-        <div>
+        <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
             <div data-vjs-player>
                 <video ref={videoRef} className="video-js" />
             </div>
@@ -31,7 +31,7 @@ const VideoComponent = ({ videoSrc, setVideoSrc, imageResults, audioBase64, gene
             ) : (
                 <p>No video available.</p>
             )}
-        </div>
+        </Box>
     );
 };
 

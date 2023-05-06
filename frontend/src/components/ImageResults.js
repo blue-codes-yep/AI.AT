@@ -50,7 +50,7 @@ const ImageResults = ({ imageResults }) => {
                             src={imageUrl}
                             alt={`Image ${index + 1}`}
                             style={{
-                                maxWidth: '892px',
+                                maxWidth: '900px',
                                 maxHeight: '572px',
                                 objectFit: 'contain',
                                 width: '100%',

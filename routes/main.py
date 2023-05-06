@@ -4,15 +4,10 @@ import json
 from pathlib import Path
 from collections import deque
 from llm import (
-    script_chain,
-    adjust_chain,
-    refine_chain,
+    run_all_chains,
     search,
-    refine_chain,
-    script_memory,
-    adjust_memory,
-    refine_memory,
-    combined_memory,
+    conv_memory,
+    summary_memory,
 )
 
 from flask import (
@@ -51,62 +46,32 @@ def index():
 
     # Run the chain with the prompt
     google_search_result = search.run(prompt)
-    # Run the chain with the prompt
-    google_search_result = search.run(prompt)
-    script = script_chain({"topic": prompt, "google_search": google_search_result})
-    combined_memory.save_context(
-        script, {script_chain.output_key: script[script_chain.output_key]}
-    )
-    adjust = adjust_chain({"script": script[script_chain.output_key]})
-    print("Adjust Output:", adjust)
 
-    combined_memory.save_context(
-        adjust, {adjust_chain.output_key: adjust[adjust_chain.output_key]}
-    )
-    print("Combined Memory:", combined_memory.buffer)
+    # Call the run_all_chains function
+    chain_outputs = run_all_chains(prompt, google_search_result)
 
-    # Possibly change the input key for combined memory?
-    refine = refine_chain({"adjusted_script": adjust[adjust_chain.output_key]})
-    print("Refine Output:", refine)
-
-    combined_memory.save_context(
-        refine, {refine_chain.output_key: refine[refine_chain.output_key]}
-    )
-    print("Combined Memory after Refine:", combined_memory.buffer)
-
-    refine_output = (
-        refine[refine_chain.output_key]
-        if refine[refine_chain.output_key]
-        else refine_memory.buffer
+    # Get the summary
+    summary = summary_memory.predict_new_summary(
+        conv_memory.chat_memory.messages[-2:], summary_memory.buffer
     )
 
-    print("Adjust:", adjust)
-    print("Refine:", refine)
-    print("Script Memory:", script_memory.buffer)
-    print("Adjust Memory:", adjust_memory.buffer)
-    print("Refine Memory:", refine_memory.buffer)
     # Get image results
     image_results = get_unsplash_image_urls(prompt)
 
     # Save the response to the message history
-    message_history.append(
-        {
-            "script": script_memory.buffer,
-            "adjust": adjust_memory.buffer,
-            "refine": refine_memory.buffer,
-        }
-    )
+    message_history.append(chain_outputs)
 
     message_history_list = list(message_history)
-    print("Message History:", message_history_list)
 
     response = {
         "generated_text": {
-            "refine": refine_output,
+            "refine": chain_outputs["refined_script"],
         },
         "image_results": image_results,
         "message_history": message_history_list,
     }
+
+    print("Response:", response)  # Add this line
 
     return json.dumps(response)
 

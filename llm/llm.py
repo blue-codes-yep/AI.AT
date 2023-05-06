@@ -15,7 +15,6 @@ from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory, ConversationSummaryBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
 
-
 os.environ["OPENAI_API_KEY"] = apikey
 os.environ["GOOGLE_API_KEY"] = google_search
 os.environ["GOOGLE_CSE_ID"] = google_cse
@@ -24,67 +23,13 @@ os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key
 os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_key
 os.environ["AWS_DEFAULT_REGION"] = aws_region
 
-from typing import Dict, Optional
-from langchain.memory import ConversationBufferMemory
-
-
-from typing import Dict, Optional
-from langchain.memory import ConversationBufferMemory
-
-
-class CustomConversationBufferMemory(ConversationBufferMemory):
-    input_key_mapping: Optional[Dict[str, str]] = None
-
-    def _get_input_output(self, inputs, outputs):
-        prompt_input_key = (
-            self.input_key_mapping.get(self.input_key, self.input_key)
-            if self.input_key_mapping
-            else self.input_key
-        )
-        output_key = self.output_key or self.input_key
-
-        input_str = inputs.get(prompt_input_key, None)
-        output_str = outputs.get(output_key, None)
-
-        if input_str is None or output_str is None:
-            return None, None
-
-        return input_str, output_str
-
-    def save_context(self, inputs, outputs, message_type="ai"):
-        input_str, output_str = self._get_input_output(inputs, outputs)
-        if input_str is None or output_str is None:
-            print(
-                f"KeyError occurred when trying to save context with inputs: {inputs}, outputs: {outputs}"
-            )
-        else:
-            if message_type == "ai":
-                self.chat_memory.add_ai_message(output_str)
-            elif message_type == "user":
-                self.chat_memory.add_user_message(input_str)
-
-
-# Memory
-script_memory = ConversationBufferMemory(input_key="topic", memory_key="chat_history")
-
-adjust_memory = ConversationBufferMemory(input_key="script", memory_key="chat_history")
-
-combined_memory = CustomConversationBufferMemory(
-    input_key="adjusted_script",
-    memory_key="chat_history",
-    input_key_mapping={"adjusted_script": "script"},
-)
-
-refine_memory = CustomConversationBufferMemory(
-    input_key="refined_script",
-    memory_key="chat_history",
-    input_key_mapping={"refined_script": "adjusted_script"},
-)
-
-print(combined_memory.buffer)
-
 # LLMs
 llm = OpenAI(temperature=0.4, max_tokens=2048)
+
+# Memory
+conv_memory = ConversationBufferMemory()
+summary_memory = ConversationSummaryBufferMemory(llm=llm)
+
 
 # Prompt template for LLM
 script_template = PromptTemplate(
@@ -104,29 +49,40 @@ refine_template = PromptTemplate(
     ],
     template="Refine the adjusted script staying on topic to make it more charismatic: {adjusted_script}",
 )
-
+# LLM Chains
 script_chain = LLMChain(
-    llm=llm,
-    prompt=script_template,
-    verbose=True,
-    output_key="script",
-    memory=script_memory,
+    llm=llm, prompt=script_template, verbose=True, output_key="script"
 )
-
 adjust_chain = LLMChain(
-    llm=llm,
-    prompt=adjust_template,
-    verbose=True,
-    output_key="adjusted_script",
-    memory=adjust_memory,
+    llm=llm, prompt=adjust_template, verbose=True, output_key="adjusted_script"
 )
-
 refine_chain = LLMChain(
-    llm=llm,
-    prompt=refine_template,
-    verbose=True,
-    output_key="refined_script",
-    memory=refine_memory,
+    llm=llm, prompt=refine_template, verbose=True, output_key="refined_script"
 )
 
 search = GoogleSearchAPIWrapper()
+
+
+def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
+    script = script_chain({"topic": prompt, "google_search": google_search_result})
+    conv_memory.save_context(
+        {"topic": prompt}, {"script": script[script_chain.output_key]}
+    )
+
+    adjust = adjust_chain({"script": script[script_chain.output_key]})
+    conv_memory.save_context(
+        {"script": script[script_chain.output_key]},
+        {"adjusted_script": adjust[adjust_chain.output_key]},
+    )
+
+    refine = refine_chain({"adjusted_script": adjust[adjust_chain.output_key]})
+    conv_memory.save_context(
+        {"adjusted_script": adjust[adjust_chain.output_key]},
+        {"refined_script": refine[refine_chain.output_key]},
+    )
+
+    return {
+        "script": script[script_chain.output_key],
+        "adjusted_script": adjust[adjust_chain.output_key],
+        "refined_script": refine[refine_chain.output_key],
+    }

@@ -85,9 +85,16 @@ def add_subtitles_to_video(video, subtitle_timings, subtitle_clips):
     return final_video
 
 
-def create_video(image_urls, audio_base64, script, output_file):
+def create_video(
+    image_urls,
+    audio_base64,
+    generated_text,
+    show_subtitles,
+    output_file,
+    video_size=(1280, 720),
+):
     clips = []
-    sentences = split_sentences(script)
+    sentences = split_sentences(generated_text)
     subtitle_timings = generate_subtitle_timings(sentences, synthesize_speech)
     background = Image.new("RGB", (1280, 720), color="black")
 
@@ -108,14 +115,24 @@ def create_video(image_urls, audio_base64, script, output_file):
 
     concatenated_clip = mp.concatenate_videoclips(clips)
 
-    subtitle_clips = [
-        create_subtitle_clip(text, start, end, concatenated_clip.size)
-        for start, end, text in subtitle_timings
-    ]
+    print(f"show_subtitles: {show_subtitles}")  # Print the value of show_subtitles
 
-    final_clip = add_subtitles_to_video(
-        concatenated_clip, subtitle_timings, subtitle_clips
-    )
+    if show_subtitles:
+        print(
+            "Creating subtitle clips"
+        )  # Debug message to indicate subtitles are being created
+        subtitle_clips = [
+            create_subtitle_clip(text, start, end, video_size, show_subtitles)
+            for start, end, text in subtitle_timings
+        ]
+        final_clip = add_subtitles_to_video(
+            concatenated_clip, subtitle_timings, subtitle_clips
+        )
+    else:
+        print(
+            "Skipping subtitle clips"
+        )  # Debug message to indicate subtitles are being skipped
+        final_clip = concatenated_clip
 
     temp_dir = Path(__file__).resolve().parent / "temp"
     temp_dir.mkdir(parents=True, exist_ok=True)

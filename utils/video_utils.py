@@ -1,7 +1,6 @@
 import moviepy.editor as mp
 import concurrent.futures
 from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
-from moviepy.video.fx.resize import resize
 import requests
 from io import BytesIO
 from PIL import Image

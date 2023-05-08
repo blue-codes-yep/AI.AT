@@ -6,25 +6,18 @@ from collections import deque
 from llm import (
     run_all_chains,
     search,
-    conv_memory,
 )
 
 from flask import (
     Blueprint,
-    render_template,
     request,
     jsonify,
-    send_from_directory,
-    make_response,
 )
 
 from utils import (
-    get_image_results,
     synthesize_speech,
     create_video,
     upload_to_s3,
-    split_sentences,
-    generate_subtitle_timings,
     get_unsplash_image_urls,
 )
 
@@ -96,9 +89,7 @@ def create_video_endpoint():
     data = request.get_json()
     image_urls = data["image_results"]
     audio_base64 = data["audioBase64"]
-    text = data["generatedText"][
-        "refine"
-    ]  # Extract the script text from the generatedText dictionary
+    text = data["generatedText"]["refine"]
 
     # Call the create_video function
     output_path = Path("G:/AI Application/utils/temp")
@@ -107,7 +98,7 @@ def create_video_endpoint():
     create_video(image_urls, audio_base64, text, output_file)
 
     # Save the video to AWS S3
-    object_name = "video.mp4"  # Update with the correct S3 object key
+    object_name = "video.mp4"
     s3_video_url = upload_to_s3(output_file, object_name)
 
     # Remove the temporary output file

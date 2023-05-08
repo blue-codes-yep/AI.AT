@@ -1,3 +1,4 @@
+from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from apikey import (
     apikey,
@@ -24,7 +25,7 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_key
 os.environ["AWS_DEFAULT_REGION"] = aws_region
 
 # LLMs
-llm = ChatOpenAI(temperature=0.3, max_tokens=2048, model_name="gpt-4")
+llm = OpenAI(temperature=0.3, max_tokens=250, model_name="gpt-4")
 
 # Memory
 conv_memory = ConversationBufferMemory()
@@ -69,14 +70,13 @@ def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
     conv_memory.save_context(
         {"topic": prompt}, {"script": script[script_chain.output_key]}
     )
-    print("Script chain output:", script)
 
     adjust = adjust_chain({"script": script[script_chain.output_key]})
     conv_memory.save_context(
         {"script": script[script_chain.output_key]},
         {"adjusted_script": adjust[adjust_chain.output_key]},
     )
-    print("Adjust chain output:", adjust)
+
     adjust_output = adjust[adjust_chain.output_key]
     adjusted_script = adjust_output.split("-=-=-=- Adjusted Script -=-=-=-")[-1].strip()
 
@@ -90,7 +90,6 @@ def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
         {"adjusted_script": adjust[adjust_chain.output_key]},
         {"refined_script": refine[refine_chain.output_key]},
     )
-    print("Refine chain output:", refine)
 
     refine_output = refine[refine_chain.output_key]
     refined_script = refine_output.split("-=-=-=- Refined Script -=-=-=-")[-1].strip()

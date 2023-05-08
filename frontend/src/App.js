@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Container, Box, Typography } from '@mui/material';
 import PromptForm from './components/PromptForm';
 import GeneratedText from './components/GeneratedText';
@@ -14,10 +14,15 @@ const App = () => {
   const [messageHistory, setMessageHistory] = useState([]);
   const [audioBase64, setAudioBase64] = useState('');
   const [videoSrc, setVideoSrc] = useState(null);
+  const [showSubtitles, setShowSubtitles] = useState(false);
+
+  const toggleSubtitles = () => {
+    setShowSubtitles(!showSubtitles);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log("Show subtitles:", showSubtitles);
     const initialApiResponse = await fetch("http://localhost:5000/api", {
       method: "POST",
       headers: {
@@ -54,6 +59,7 @@ const App = () => {
         image_results: initialApiData.image_results,
         audioBase64: ttsData.audio_base64,
         generatedText: initialApiData.generated_text,
+        showSubtitles: showSubtitles,
       }),
     });
     const videoData = await videoResponse.json();
@@ -79,7 +85,12 @@ const App = () => {
           {messageHistory.length > 0 && (
             <MessageHistory messageHistory={messageHistory} />
           )}
-          <PromptForm handleSubmit={handleSubmit} setPrompt={setPrompt} />
+          <PromptForm
+            handleSubmit={handleSubmit}
+            setPrompt={setPrompt}
+            showSubtitles={showSubtitles}
+            toggleSubtitles={toggleSubtitles}
+          />
           <VideoComponent
             videoSrc={videoSrc}
             setVideoSrc={setVideoSrc}

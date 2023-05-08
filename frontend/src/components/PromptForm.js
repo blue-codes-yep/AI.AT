@@ -1,19 +1,32 @@
 import React from 'react';
 import { TextField, Button, Box } from '@mui/material';
+import { FormControlLabel, Checkbox } from '@mui/material';
 
-const PromptForm = ({ handleSubmit, setPrompt }) => {
+const PromptForm = ({ handleSubmit, setPrompt, showSubtitles, toggleSubtitles }) => {
     return (
         <Box my={4}>
             <form onSubmit={handleSubmit}>
                 <TextField
-                    label="Enter your prompt"
+                    label="Enter a topic"
                     fullWidth
-                    variant="outlined"
+                    defaultValue={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                 />
                 <Box mt={2}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={showSubtitles}
+                                onChange={toggleSubtitles}
+                                color="primary"
+                            />
+                        }
+                        label="Show subtitles"
+                    />
+                </Box>
+                <Box mt={2}>
                     <Button variant="contained" color="primary" type="submit">
-                        Submit
+                        Generate video
                     </Button>
                 </Box>
             </form>

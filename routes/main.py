@@ -90,12 +90,13 @@ def create_video_endpoint():
     image_urls = data["image_results"]
     audio_base64 = data["audioBase64"]
     text = data["generatedText"]["refine"]
-
+    showSubtitles = data.get("showSubtitles")
+    print(showSubtitles)
     # Call the create_video function
     output_path = Path("G:/AI Application/utils/temp")
     output_file = output_path / "video.mp4"
 
-    create_video(image_urls, audio_base64, text, output_file)
+    create_video(image_urls, audio_base64, text, showSubtitles, output_file)
 
     # Save the video to AWS S3
     object_name = "video.mp4"

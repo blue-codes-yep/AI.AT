@@ -93,7 +93,7 @@ def create_video_endpoint():
     show_subtitles = data.get("showSubtitles")
     print(show_subtitles)
     # Call the create_video function
-    output_path = Path("G:/AI Application/utils/temp")
+    output_path = Path("/home/blue/AiProj/AI.AT/utils/temp")
     output_file = output_path / "video.mp4"
 
     create_video(image_urls, audio_base64, text, show_subtitles, output_file)

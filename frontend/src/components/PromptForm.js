@@ -12,23 +12,25 @@ const PromptForm = ({ handleSubmit, setPrompt, showSubtitles, toggleSubtitles })
                     defaultValue={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                 />
-                <Box mt={2}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={showSubtitles}
-                                onChange={toggleSubtitles}
-                                color="primary"
-                            />
-                        }
-                        label="Show subtitles"
-                    />
-                </Box>
-                <Box mt={2}>
-                    <Button variant="contained" color="primary" type="submit">
-                        Generate video
-                    </Button>
-                </Box>
+                <div className="GenterateVideo">
+                    <Box mt={2}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={showSubtitles}
+                                    onChange={toggleSubtitles}
+                                    color="primary"
+                                />
+                            }
+                            label="Show subtitles"
+                        />
+                    </Box>
+                    <Box mt={2}>
+                        <Button variant="contained" color="primary" type="submit">
+                            Generate video
+                        </Button>
+                    </Box>
+                </div>
             </form>
         </Box>
     );

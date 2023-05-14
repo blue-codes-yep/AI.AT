@@ -47,5 +47,9 @@ h1 {
   margin-bottom: 10px;
 }
 
+.GenterateVideo {
+  display: flex;
+  justify-content: center;
+}
 
 

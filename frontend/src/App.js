@@ -80,7 +80,7 @@ const App = () => {
       <Container maxWidth="md">
         <Box my={4}>
           <Typography variant="h3" align="center" gutterBottom>
-            Input script topic
+            Script Topic 📜
           </Typography>
           {messageHistory.length > 0 && (
             <MessageHistory messageHistory={messageHistory} />

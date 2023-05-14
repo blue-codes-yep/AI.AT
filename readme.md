@@ -1,9 +1,11 @@
 # AI-Powered Script Generator 🚀
 
+* Writing subtitles can take time on longer videos, Just recent I did a fresh install of windows, and upgraded from 10, to windows 11, as well as set my dev environment up this time around using wsl2 with windows, and either the fresh install, or the wsl2 (maybe combination of both) pretty much around 2.5x the speed of rendering/encoding the video, as before.
+
 This is a work-in-progress application that uses AI to generate engaging video scripts based on your input. It showcases some cool features that demonstrate the capabilities of these technologies.
 
-![Image 1](https://i.imgur.com/G43GRS2.png)
-![Image 2](https://i.imgur.com/F5fBXu9.png)
+![Image 1](https://i.imgur.com/U81nqHn.png)
+![Image 2](https://i.imgur.com/r0nHVR6.png)
 
 ## Features
 

@@ -24,9 +24,54 @@ I'm working on improving the app, and there are some features and refinements th
 
 ## How to Use
 
-1. Enter a topic or keyword.
-2. The app will generate a script, find relevant images, synthesize speech audio, and create a video.
-3. Review the generated script, images, and video.
-4. Share your amazing AI-generated YouTube video with the world!
+1. Install Dependencies:
+   - Open the terminal or command prompt.
+   - Navigate to the root folder of the project.
+   - Run the following command to install the necessary Python packages:
+     ```
+     pip install -r requirements.txt
+     ```
 
-Feel free to explore it and let me know what you think. Your feedback and suggestions will be invaluable as I continue to work on this project.
+2. Input API Keys:
+   - Open `apikey.py` and provide the following API keys (feel free to switch them up and use whatever services you prefer):
+     - OpenAI API Key
+     - Google API Key
+     - Google CSE ID
+     - SERPAPI API Key (Used for images, but currently using Unsplash)
+     - AWS Access Key ID
+     - AWS Secret Access Key
+     - AWS Default Region
+     - Unsplash Access Key
+     - Unsplash Secret Key
+   - Save the file after updating the API keys.
+
+3. Run the Python Application:
+   - In the terminal or command prompt, still in the root folder, run the following command:
+     ```
+     python app.py
+     ```
+   - This will start the Python application and allow you to interact with it.
+
+4. Set Up the Frontend:
+   - Open a new terminal or command prompt window.
+   - Change the directory to the "frontend" folder of the project:
+     ```
+     cd frontend
+     ```
+   - Run the following command to install the required Node.js packages:
+     ```
+     npm install
+     ```
+
+5. Start the Frontend Server:
+   - After the installation is complete, run the following command in the "frontend" folder:
+     ```
+     npm start
+     ```
+   - This will start the frontend server and make the application accessible in your web browser.
+
+6. Start The Application:
+    - After starting both the back-end, and front-end you will be able to navigate to your react app, and provide a topic to have a video genterated!
+    - The app will generate a script, find relevant images, synthesize speech audio, and create a video based on the provided input.
+
+Please note that this is a general guide, and depending on your system configuration, there might be slight variations in the commands or steps required. If you encounter any issues, feel free to reach out for assistance. Your feedback and suggestions will be invaluable as I continue to work on this project.

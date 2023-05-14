@@ -1,6 +1,5 @@
 # AI-Powered Script Generator 🚀
 
-* Writing subtitles can take time on longer videos, Just recent I did a fresh install of windows, and upgraded from 10, to windows 11, as well as set my dev environment up this time around using wsl2 with windows, and either the fresh install, or the wsl2 (maybe combination of both) pretty much around 2.5x the speed of rendering/encoding the video, as before.
 
 This is a work-in-progress application that uses AI to generate engaging video scripts based on your input. It showcases some cool features that demonstrate the capabilities of these technologies.
 
@@ -19,6 +18,7 @@ The app currently has the following features:
 - Creates a video using the script, images, and audio.
 
 ## Work in Progress
+* Writing subtitles can take time on longer videos, Just recent I did a fresh install of windows, and upgraded from 10, to windows 11, as well as set my dev environment up this time around using wsl2 with windows, and either the fresh install, or the wsl2 (maybe combination of both) pretty much around 2.5x the speed of rendering/encoding the video, as before.
 
 I'm working on improving the app, and there are some features and refinements that I'm planning to implement in the future. Once I'm happy with the current state of the app and it showcases a few more exciting features, I'll be moving it into a private repository to continue the development.
 

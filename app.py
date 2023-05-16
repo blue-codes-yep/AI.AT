@@ -1,9 +1,11 @@
 import os
-from flask import Flask, send_from_directory
+import redis
+from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 from routes.main import main_bp
 from apikey import apikey
 from langchain.llms import OpenAI
+from utils.progress_utils import long_task
 
 os.environ["OPENAI_API_KEY"] = apikey
 
@@ -18,6 +20,7 @@ def serve(path):
         return send_from_directory("frontend/build", path)
     else:
         return send_from_directory("frontend/build", "index.html")
+    
 
 if __name__ == '__main__':
     app.run()

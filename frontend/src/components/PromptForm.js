@@ -15,23 +15,26 @@ const PromptForm = ({ handleSubmit, setPrompt, showSubtitles, toggleSubtitles })
         const taskId = res.data.task_id;
         getStatus(taskId);
     }
-
+    
     const getStatus = async (taskId) => {
         const res = await axios.get(`http://localhost:5000/task-status/${taskId}`);
         if (res.data.state === 'PROGRESS') {
             setProgress(res.data.current / res.data.total);
             setStatusMessage('Task in progress...');
             setTimeout(() => getStatus(taskId), 1000);
-        } else {
+        } else if (res.data.state === 'SUCCESS') {
             setLoading(false);
             setProgress(1);
             setStatusMessage('Task completed!');
+        } else {
+            setLoading(false);
+            setStatusMessage('Task failed. Please try again.');
         }
     }
 
     return (
         <Box my={4}>
-            <form onSubmit={startTask}>
+            <form onSubmit={handleSubmit}>
                 <TextField
                     label="Enter a topic"
                     fullWidth

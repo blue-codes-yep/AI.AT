@@ -3,6 +3,7 @@ from pydub import AudioSegment
 from utils.polly_utils import synthesize_speech
 from io import BytesIO
 
+
 nlp = spacy.load("en_core_web_sm")
 
 def split_text_into_chunks(text, max_length):

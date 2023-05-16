@@ -19,6 +19,7 @@ from utils import (
     create_video,
     upload_to_s3,
     get_unsplash_image_urls,
+    long_task,
 )
 
 main_bp = Blueprint("main", __name__)
@@ -107,3 +108,21 @@ def create_video_endpoint():
 
     # Return the video URL in the response
     return jsonify({"video_url": s3_video_url})
+
+@main_bp.route('/task-status/<task_id>')
+def task_status(task_id):
+    task = long_task.AsyncResult(task_id)
+    if task.state == 'PROGRESS':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+        }
+    else:
+        response = {'state': task.state, 'result': task.result}
+    return jsonify(response)
+
+@main_bp.route('/start-task', methods=['GET'])
+def start_task():
+    task = long_task.apply_async()
+    return jsonify({'task_id': task.id}), 202

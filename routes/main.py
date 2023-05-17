@@ -12,6 +12,7 @@ from flask import (
     Blueprint,
     request,
     jsonify,
+    current_app
 )
 
 from utils import (
@@ -19,7 +20,6 @@ from utils import (
     create_video,
     upload_to_s3,
     get_unsplash_image_urls,
-    long_task,
 )
 
 main_bp = Blueprint("main", __name__)
@@ -106,7 +106,8 @@ def create_video_endpoint():
 
 @main_bp.route('/task-status/<task_id>')
 def task_status(task_id):
-    task = long_task.AsyncResult(task_id)
+    task = create_video.AsyncResult(task_id)
+    current_app.logger.info(f'Checking status of task {task_id}, current state is {task.state}')
     if task.state == 'PROGRESS':
         response = {
             'state': task.state,
@@ -120,5 +121,6 @@ def task_status(task_id):
 
 @main_bp.route('/start-task', methods=['GET'])
 def start_task():
-    task = long_task.apply_async()
-    return jsonify({'task_id': task.id}), 202
+    task = create_video.apply_async()
+    current_app.logger.info(f'Started new task with id {task.id}')
+    return jsonify({'task_id': task.id}), 202 

@@ -3,7 +3,7 @@ import { TextField, Button, Box } from '@mui/material';
 import { FormControlLabel, Checkbox } from '@mui/material';
 import axios from 'axios';
 
-const PromptForm = ({ handleSubmit, setPrompt, showSubtitles, toggleSubtitles }) => {
+const PromptForm = ({ handleSubmit, setPrompt, showSubtitles, toggleSubtitles, startCheckingStatus  }) => {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [statusMessage, setStatusMessage] = useState('');
@@ -13,8 +13,10 @@ const PromptForm = ({ handleSubmit, setPrompt, showSubtitles, toggleSubtitles })
         setLoading(true);
         const res = await axios.get('http://localhost:5000/start-task');
         const taskId = res.data.task_id;
-        getStatus(taskId);
+        // Notify the parent component that the task has started
+        startCheckingStatus(taskId);
     }
+
     
     const getStatus = async (taskId) => {
         const res = await axios.get(`http://localhost:5000/task-status/${taskId}`);

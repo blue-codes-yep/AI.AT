@@ -93,21 +93,16 @@ def create_video_endpoint():
     text = data["generatedText"]["refine"]
     show_subtitles = data.get("showSubtitles")
     print(show_subtitles)
-    # Call the create_video function
+    # Define the output path
     output_path = Path("/home/blue/AiProj/AI.AT/utils/temp")
     output_file = output_path / "video.mp4"
 
-    create_video(image_urls, audio_base64, text, show_subtitles, output_file)
+    # Start the create_video task asynchronously
+    task = create_video.apply_async(args=[image_urls, audio_base64, text, show_subtitles, str(output_file)])
 
-    # Save the video to AWS S3
-    object_name = "video.mp4"
-    s3_video_url = upload_to_s3(output_file, object_name)
+    # Return the task ID in the response
+    return jsonify({'task_id': task.id}), 202
 
-    # Remove the temporary output file
-    os.remove(output_file)
-
-    # Return the video URL in the response
-    return jsonify({"video_url": s3_video_url})
 
 @main_bp.route('/task-status/<task_id>')
 def task_status(task_id):
@@ -121,6 +116,7 @@ def task_status(task_id):
     else:
         response = {'state': task.state, 'result': task.result}
     return jsonify(response)
+
 
 @main_bp.route('/start-task', methods=['GET'])
 def start_task():

@@ -1,15 +1,19 @@
 import moviepy.editor as mp
 import concurrent.futures
-from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
+from celery import Celery
 import requests
-from io import BytesIO
-from PIL import Image
 import base64
 import numpy as np
+import os
+from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
+from io import BytesIO
+from PIL import Image
 from pathlib import Path
 from utils.subtitle_utils import split_sentences, generate_subtitle_timings
 from utils.polly_utils import synthesize_speech
+from utils.s3_utils import upload_to_s3
 
+celery = Celery("app", broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
 
 def resize_image(image, width=1280, height=720):
     aspect_ratio = image.width / image.height
@@ -84,8 +88,9 @@ def add_subtitles_to_video(video, subtitle_timings, subtitle_clips):
     final_video = CompositeVideoClip([video] + subtitle_clips)
     return final_video
 
-
+@celery.task(bind=True)
 def create_video(
+    self,
     image_urls,
     audio_base64,
     generated_text,
@@ -93,6 +98,7 @@ def create_video(
     output_file,
     video_size=(1280, 720),
 ):
+    output_file = Path(output_file)
     clips = []
     sentences = split_sentences(generated_text)
     subtitle_timings = generate_subtitle_timings(sentences, synthesize_speech)
@@ -100,7 +106,15 @@ def create_video(
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         images = list(executor.map(download_and_resize_image, image_urls))
+        
+    total_images = len(image_urls)
+    for i, image_url in enumerate(image_urls):
+        image = download_and_resize_image(image_url)
+        # ... process the image ...
 
+        # Update the task's progress
+    self.update_state(state='PROGRESS', meta={'current': i, 'total': total_images})
+        
     for image in images:
         img_bg = background.copy()
         img_bg.paste(
@@ -173,4 +187,12 @@ def create_video(
     if temp_audio_path.exists():
         temp_audio_path.unlink()
 
-    return video_data
+        # Save the video to AWS S3
+    object_name = "video.mp4"
+    s3_video_url = upload_to_s3(output_file, object_name)
+
+    # Remove the temporary output file
+    os.remove(output_file)
+
+    # Return the video URL
+    return s3_video_url

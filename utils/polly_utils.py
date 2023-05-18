@@ -1,4 +1,5 @@
 import boto3
+import base64
 from apikey import aws_access_key, aws_secret_key, aws_region
 from pydub import AudioSegment
 from pathlib import Path
@@ -30,10 +31,15 @@ def synthesize_speech(self, result_of_previous_task, text):
         audio_data, format="raw", frame_rate=16000, channels=1, sample_width=2
     )
 
-    # Convert the audio to WAV format and return it
+    # Convert the audio to WAV format and save it to a BytesIO object
     buffer = BytesIO()
     audio.export(buffer, format="wav")
     buffer.seek(0)
 
+    # Convert the BytesIO object to a base64-encoded string
+    audio_base64 = base64.b64encode(buffer.getvalue()).decode()
+
     self.update_state(state="PROGRESS", meta={"current": 50, "total": 100})
-    return buffer
+
+    # Return the base64-encoded string
+    return audio_base64

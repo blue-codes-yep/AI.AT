@@ -26,10 +26,12 @@ const App = () => {
   };
 
   const startCheckingStatus = async (taskId) => {
+    console.log('Starting to check status for task:', taskId);
     setLoading(true);
     setStatusMessage('Processing video...');
     const response = await fetch(`http://localhost:5000/task-status/${taskId}`);
     const data = await response.json();
+    console.log('Response from /task-status:', data);
     if (data.state === 'PENDING' || data.state === 'PROGRESS') {
       setTimeout(() => startCheckingStatus(taskId), 1000);
     } else if (data.state === 'SUCCESS') {
@@ -44,6 +46,8 @@ const App = () => {
   };
 
 
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Show subtitles:", showSubtitles);
@@ -56,29 +60,9 @@ const App = () => {
         prompt: prompt,
       }),
     });
-    const initialApiData = await initialApiResponse.json();
-
-    setGeneratedText(initialApiData.generated_text);
-    setImageResults(initialApiData.image_results);
     
-    const startCheckingStatus = async (taskId) => {
-      setLoading(true);
-      setStatusMessage('Processing video...');
-      const response = await fetch(`http://localhost:5000/task-status/${taskId}`);
-      const data = await response.json();
-      if (data.state === 'PENDING' || data.state === 'PROGRESS') {
-        setTimeout(() => startCheckingStatus(taskId), 1000);
-      } else if (data.state === 'SUCCESS') {
-        setVideoSrc(data.result);
-        setLoading(false);
-        setStatusMessage('Video processed successfully!');
-      } else {
-        console.error('Task failed');
-        setLoading(false);
-        setStatusMessage('Error processing video.');
-      }
-    };
-
+    const initialApiData = await initialApiResponse.json();
+    
     const ttsResponse = await fetch("http://localhost:5000/api/tts", {
       method: "POST",
       headers: {
@@ -89,9 +73,11 @@ const App = () => {
       }),
     });
     const ttsData = await ttsResponse.json();
-
     setAudioBase64(ttsData.audio_base64);
-
+  
+    setGeneratedText(initialApiData.generated_text);
+    setImageResults(initialApiData.image_results);
+  
     const videoResponse = await fetch("http://localhost:5000/api/video", {
       method: "POST",
       headers: {
@@ -105,15 +91,24 @@ const App = () => {
       }),
     });
     const videoData = await videoResponse.json();
+    console.log('Response from /api/video:', videoData);
+    // Start checking the task status
+    console.log('Task ID:', videoData.task_id);
+    startCheckingStatus(videoData.task_id);
 
     if (videoResponse.ok) {
-      const videoSrc = videoData.video_url;
-      setVideoSrc(videoSrc);
-
+      const videoSrc = videoData;
+      console.log('Video source URL:', videoSrc);
+      setVideoSrc(videoData.result);
+      console.log('Video source URL after task completion:', videoData.result);
+  
       // Fetch the updated message history and other necessary data
       const updatedApiResponse = await fetch("http://localhost:5000/api");
       const updatedApiData = await updatedApiResponse.json();
       setMessageHistory(updatedApiData.message_history);
+  
+      // Start checking the task status
+      startCheckingStatus(videoData.task_id);
     }
   };
 

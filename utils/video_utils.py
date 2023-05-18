@@ -110,9 +110,8 @@ def create_video(
     total_images = len(image_urls)
     for i, image_url in enumerate(image_urls):
         image = download_and_resize_image(image_url)
-        # ... process the image ...
 
-        # Update the task's progress
+    # Update the task's progress
     self.update_state(state='PROGRESS', meta={'current': i, 'total': total_images})
         
     for image in images:

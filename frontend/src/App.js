@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Container, Box, Typography } from '@mui/material';
+import { Container, Box, Typography} from '@mui/material';
 import PromptForm from './components/PromptForm';
 import GeneratedText from './components/GeneratedText';
 import ImageResults from './components/ImageResults';
 import MessageHistory from './components/MessageHistory';
 import VideoComponent from './components/VideoComponent';
+import CustomProgressBar from './components/CustomProgressBar';
 import './App.css';
-import axios from 'axios';
+
 
 
 const App = () => {
@@ -19,7 +20,7 @@ const App = () => {
   const [showSubtitles, setShowSubtitles] = useState(false);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
-
+  const [taskProgress, setTaskProgress] = useState(0); // New state for task progress
 
   const toggleSubtitles = () => {
     setShowSubtitles(!showSubtitles);
@@ -33,11 +34,13 @@ const App = () => {
     const data = await response.json();
     console.log('Response from /task-status:', data);
     if (data.state === 'PENDING' || data.state === 'PROGRESS') {
+      setTaskProgress(data.current / data.total); // Update task progress
       setTimeout(() => startCheckingStatus(taskId), 1000);
     } else if (data.state === 'SUCCESS') {
       setVideoSrc(data.result);
       setLoading(false);
       setStatusMessage('Video processed successfully!');
+      setTaskProgress(0); // Reset task progress
     } else {
       console.error('Task failed');
       setLoading(false);
@@ -45,12 +48,10 @@ const App = () => {
     }
   };
 
-
-
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Show subtitles:", showSubtitles);
+
     const initialApiResponse = await fetch("http://localhost:5000/api", {
       method: "POST",
       headers: {
@@ -73,8 +74,8 @@ const App = () => {
       }),
     });
     const ttsData = await ttsResponse.json();
+
     setAudioBase64(ttsData.audio_base64);
-  
     setGeneratedText(initialApiData.generated_text);
     setImageResults(initialApiData.image_results);
   
@@ -90,8 +91,10 @@ const App = () => {
         showSubtitles: showSubtitles,
       }),
     });
+
     const videoData = await videoResponse.json();
     console.log('Response from /api/video:', videoData);
+
     // Start checking the task status
     console.log('Task ID:', videoData.task_id);
     startCheckingStatus(videoData.task_id);
@@ -138,6 +141,7 @@ const App = () => {
           />
           {loading && <div className="spinner"></div>}
           <div>{statusMessage}</div>
+          <CustomProgressBar progress={taskProgress * 100} />
           {generatedText.refine && (
             <GeneratedText generatedText={generatedText} handleSubmit={handleSubmit} />
           )}
@@ -146,10 +150,6 @@ const App = () => {
       </Container>
     </div>
   );
-
 };
-
-
-
 
 export default App;

@@ -13,7 +13,10 @@ from utils.subtitle_utils import split_sentences, generate_subtitle_timings
 from utils.polly_utils import synthesize_speech
 from utils.s3_utils import upload_to_s3
 
-celery = Celery("app", broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+celery = Celery(
+    "app", broker="redis://localhost:6379/0", backend="redis://localhost:6379/0"
+)
+
 
 def resize_image(image, width=1280, height=720):
     aspect_ratio = image.width / image.height
@@ -88,6 +91,7 @@ def add_subtitles_to_video(video, subtitle_timings, subtitle_clips):
     final_video = CompositeVideoClip([video] + subtitle_clips)
     return final_video
 
+
 @celery.task(bind=True)
 def create_video(
     self,
@@ -98,6 +102,8 @@ def create_video(
     output_file,
     video_size=(1280, 720),
 ):
+    self.update_state(state="STARTED")
+
     output_file = Path(output_file)
     clips = []
     sentences = split_sentences(generated_text)
@@ -106,15 +112,12 @@ def create_video(
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         images = list(executor.map(download_and_resize_image, image_urls))
-        
-    total_images = len(image_urls)
-    for i, image_url in enumerate(image_urls):
-        image = download_and_resize_image(image_url)
 
-    # Update the task's progress
-    self.update_state(state='PROGRESS', meta={'current': i, 'total': total_images})
-        
-    for image in images:
+    total_images = len(images)
+    for i, image in enumerate(images):
+        # Update the task's progress
+        self.update_state(state="PROGRESS", meta={"current": i, "total": total_images})
+
         img_bg = background.copy()
         img_bg.paste(
             image,

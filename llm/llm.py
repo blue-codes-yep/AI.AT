@@ -96,5 +96,8 @@ def run_all_chains(self, prompt: str) -> Dict[str, str]:
     refine_output = refine[refine_chain.output_key]
     refined_script = refine_output.split("-=-=-=- Refined Script -=-=-=-")[-1].strip()
     self.update_state(state="PROGRESS", meta={"current": 25, "total": 100})
-    return refined_script
+    print(refined_script)
+    return {
+        'refined_script': refined_script,
+    }
 

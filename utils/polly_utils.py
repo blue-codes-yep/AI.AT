@@ -17,7 +17,8 @@ polly_client = boto3.client(
 )
 
 @celery.task(bind=True)
-def synthesize_speech(self, result_of_previous_task, text):
+def synthesize_speech(self, result_of_previous_task, text_result):
+    text = text_result.get('refined_script')
     print(f"Called synthesize_speech with arguments: {self}, {text}")
     response = polly_client.synthesize_speech(
         Text=text, OutputFormat="pcm", VoiceId="Joanna"

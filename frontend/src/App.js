@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Box, Typography} from '@mui/material';
+import { Container, Box, Typography } from '@mui/material';
 import PromptForm from './components/PromptForm';
 import GeneratedText from './components/GeneratedText';
 import ImageResults from './components/ImageResults';
@@ -37,7 +37,8 @@ const App = () => {
       setTaskProgress(data.current / data.total); // Update task progress
       setTimeout(() => startCheckingStatus(taskId), 1000);
     } else if (data.state === 'SUCCESS') {
-      setVideoSrc(data.result);
+      setVideoSrc(data.result.video); // assuming 'video' is another key in the result
+      setGeneratedText(data.result.refined_script); // update the generated text state
       setLoading(false);
       setStatusMessage('Video processed successfully!');
       setTaskProgress(0); // Reset task progress
@@ -96,8 +97,8 @@ const App = () => {
           {loading && <div className="spinner"></div>}
           <div>{statusMessage}</div>
           <CustomProgressBar progress={taskProgress * 100} />
-          {generatedText.refine && (
-            <GeneratedText generatedText={generatedText} handleSubmit={handleSubmit} />
+          {generatedText && generatedText.refined_script && (
+            <GeneratedText generatedText={generatedText} />
           )}
           {imageResults.length > 0 && <ImageResults imageResults={imageResults} />}
         </Box>

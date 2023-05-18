@@ -3,6 +3,7 @@ from apikey import aws_access_key, aws_secret_key, aws_region
 from pydub import AudioSegment
 from pathlib import Path
 from io import BytesIO
+from .progress_utils import celery
 
 temp_dir = Path(__file__).parent / "temp"
 temp_dir.mkdir(parents=True, exist_ok=True)
@@ -14,8 +15,9 @@ polly_client = boto3.client(
     region_name=aws_region,
 )
 
-
-def synthesize_speech(text):
+@celery.task(bind=True)
+def synthesize_speech(self, result_of_previous_task, text):
+    print(f"Called synthesize_speech with arguments: {self}, {text}")
     response = polly_client.synthesize_speech(
         Text=text, OutputFormat="pcm", VoiceId="Joanna"
     )
@@ -33,4 +35,5 @@ def synthesize_speech(text):
     audio.export(buffer, format="wav")
     buffer.seek(0)
 
+    self.update_state(state="PROGRESS", meta={"current": 50, "total": 100})
     return buffer

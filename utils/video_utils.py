@@ -1,6 +1,6 @@
 import moviepy.editor as mp
 import concurrent.futures
-from celery import Celery
+from utils.progress_utils import celery
 import requests
 import base64
 import numpy as np
@@ -12,10 +12,6 @@ from pathlib import Path
 from utils.subtitle_utils import split_sentences, generate_subtitle_timings
 from utils.polly_utils import synthesize_speech
 from utils.s3_utils import upload_to_s3
-
-celery = Celery(
-    "app", broker="redis://localhost:6379/0", backend="redis://localhost:6379/0"
-)
 
 
 def resize_image(image, width=1280, height=720):

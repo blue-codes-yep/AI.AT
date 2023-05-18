@@ -30,9 +30,9 @@ const App = () => {
     console.log('Starting to check status for task:', taskId);
     setLoading(true);
     setStatusMessage('Processing video...');
-    const response = await fetch(`http://localhost:5000/task-status/${taskId}`);
+    const response = await fetch(`http://localhost:5000/api/status/${taskId}`);
     const data = await response.json();
-    console.log('Response from /task-status:', data);
+    console.log('Response from /api/status:', data);
     if (data.state === 'PENDING' || data.state === 'PROGRESS') {
       setTaskProgress(data.current / data.total); // Update task progress
       setTimeout(() => startCheckingStatus(taskId), 1000);
@@ -52,7 +52,7 @@ const App = () => {
     e.preventDefault();
     console.log("Show subtitles:", showSubtitles);
 
-    const initialApiResponse = await fetch("http://localhost:5000/api", {
+    const response = await fetch("http://localhost:5000/api/start", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -61,58 +61,12 @@ const App = () => {
         prompt: prompt,
       }),
     });
-    
-    const initialApiData = await initialApiResponse.json();
-    
-    const ttsResponse = await fetch("http://localhost:5000/api/tts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text: initialApiData.generated_text.refine,
-      }),
-    });
-    const ttsData = await ttsResponse.json();
 
-    setAudioBase64(ttsData.audio_base64);
-    setGeneratedText(initialApiData.generated_text);
-    setImageResults(initialApiData.image_results);
-  
-    const videoResponse = await fetch("http://localhost:5000/api/video", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        image_results: initialApiData.image_results,
-        audioBase64: ttsData.audio_base64,
-        generatedText: initialApiData.generated_text,
-        showSubtitles: showSubtitles,
-      }),
-    });
-
-    const videoData = await videoResponse.json();
-    console.log('Response from /api/video:', videoData);
+    const data = await response.json();
 
     // Start checking the task status
-    console.log('Task ID:', videoData.task_id);
-    startCheckingStatus(videoData.task_id);
-
-    if (videoResponse.ok) {
-      const videoSrc = videoData;
-      console.log('Video source URL:', videoSrc);
-      setVideoSrc(videoData.result);
-      console.log('Video source URL after task completion:', videoData.result);
-  
-      // Fetch the updated message history and other necessary data
-      const updatedApiResponse = await fetch("http://localhost:5000/api");
-      const updatedApiData = await updatedApiResponse.json();
-      setMessageHistory(updatedApiData.message_history);
-  
-      // Start checking the task status
-      startCheckingStatus(videoData.task_id);
-    }
+    console.log('Task ID:', data.task_id);
+    startCheckingStatus(data.task_id);
   };
 
   return (

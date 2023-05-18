@@ -15,6 +15,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import GoogleSearchAPIWrapper
+from utils.progress_utils import celery
 
 os.environ["OPENAI_API_KEY"] = apikey
 os.environ["GOOGLE_API_KEY"] = google_search
@@ -64,8 +65,9 @@ refine_chain = LLMChain(
 
 search = GoogleSearchAPIWrapper()
 
-
-def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
+@celery.task(bind=True)
+def run_all_chains(self, prompt: str) -> Dict[str, str]:
+    google_search_result = search.run(prompt)
     script = script_chain({"topic": prompt, "google_search": google_search_result})
     conv_memory.save_context(
         {"topic": prompt}, {"script": script[script_chain.output_key]}
@@ -93,9 +95,6 @@ def run_all_chains(prompt: str, google_search_result: str) -> Dict[str, str]:
 
     refine_output = refine[refine_chain.output_key]
     refined_script = refine_output.split("-=-=-=- Refined Script -=-=-=-")[-1].strip()
+    self.update_state(state="PROGRESS", meta={"current": 25, "total": 100})
+    return refined_script
 
-    return {
-        "script": script[script_chain.output_key],
-        "adjusted_script": adjusted_script,
-        "refined_script": refined_script,
-    }

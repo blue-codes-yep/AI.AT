@@ -35,7 +35,7 @@ const App = () => {
     console.log('Response from /task-status:', data);
     if (data.state === 'PENDING' || data.state === 'PROGRESS') {
       setTaskProgress(data.current / data.total); // Update task progress
-      setTimeout(() => startCheckingStatus(taskId), 1000);
+      setTimeout(() => startCheckingStatus(taskId), 5000);
     } else if (data.state === 'SUCCESS') {
       setVideoSrc(data.result);
       setLoading(false);

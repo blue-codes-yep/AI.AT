@@ -1,6 +1,8 @@
 import os
 import base64
 import json
+import time
+from utils.progress_utils import celery
 from pathlib import Path
 from collections import deque
 from llm import (
@@ -99,7 +101,10 @@ def create_video_endpoint():
 
     # Start the create_video task asynchronously
     task = create_video.apply_async(args=[image_urls, audio_base64, text, show_subtitles, str(output_file)])
-
+    for _ in range(5):
+        task_status = celery.AsyncResult(task.id).status
+        print(f'Task status: {task_status}')
+        time.sleep(1)
     # Return the task ID in the response
     return jsonify({'task_id': task.id}), 202
 

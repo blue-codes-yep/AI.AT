@@ -25,6 +25,7 @@ from utils import (
     celery,
     process_results,
     generate_subtitle_timings,
+    process_synthesized_speech,
 )
 
 main_bp = Blueprint("main", __name__)
@@ -55,9 +56,11 @@ def start():
     task_chain = chain(
         run_all_chains.s(prompt),
         synthesize_speech.s(),
-        generate_subtitle_timings.s(),
+        generate_subtitle_timings.s(max_chunk_length=45),
         process_results.s(),
-        create_video.s(output_file=output_file, show_subtitles=show_subtitles)
+        process_synthesized_speech.s(),
+        create_video.s(output_file=output_file, show_subtitles=show_subtitles),
+        upload_to_s3.s(),
     )
 
     # Start the chain
@@ -65,6 +68,7 @@ def start():
 
     # Return the task ID in the response
     return jsonify({'task_id': task.id}), 202
+
 
 @main_bp.route("/api/status/<task_id>", methods=["GET"])
 def status(task_id):

@@ -1,4 +1,5 @@
 import spacy
+import base64
 from pydub import AudioSegment
 from utils.polly_utils import synthesize_speech
 from io import BytesIO
@@ -36,6 +37,8 @@ def get_audio_duration(audio_data: BytesIO):
     audio = AudioSegment.from_file(audio_data, format="wav")
     return len(audio) / 1000
 
+
+
 @celery.task
 def generate_subtitle_timings(result_of_previous_task, max_chunk_length=45):
     # Import synthesize_speech here
@@ -46,8 +49,9 @@ def generate_subtitle_timings(result_of_previous_task, max_chunk_length=45):
 
     # Create a list of chunks and a group of tasks to synthesize speech for all chunks
     sentences = result_of_previous_task['refined_script'].split('.')
+    print(f"Sentences: {sentences}") 
     chunks = [chunk for sentence in sentences for chunk in split_text_into_chunks(sentence, max_chunk_length)]
-    tasks = [synthesize_speech.s({'refined_script': chunk}) for chunk in chunks]
+    print(f"Chunks: {chunks}") 
 
     # Return the chunks, tasks, and audio_base64
-    return {'chunks': chunks, 'tasks': tasks, 'audioBase64': audio_base64}
+    return {'chunks': chunks, 'audioBase64': audio_base64}

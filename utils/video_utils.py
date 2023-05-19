@@ -13,7 +13,7 @@ from pathlib import Path
 from utils.subtitle_utils import split_sentences, generate_subtitle_timings, get_audio_duration
 from utils.polly_utils import synthesize_speech
 from utils.s3_utils import upload_to_s3
-from celery import group
+from celery import chord
 
 def resize_image(image, width=1280, height=720):
     aspect_ratio = image.width / image.height
@@ -96,33 +96,40 @@ def process_results(self, data):
     chunks = data.get('chunks')
 
     # Create a group of tasks
-    tasks = group(synthesize_speech.s({'refined_script': chunk}) for chunk in chunks)
+    tasks = [synthesize_speech.apply_async(args=[{'refined_script': chunk}]) for chunk in chunks]
 
-    # Execute the group of tasks and get the results
-    results = tasks.apply_async().get()
 
-    # Iterate over the results and chunks
-    for result, chunk in zip(results, chunks):
-        # Extract the audioBase64 from the result
+    # Create a chord with the tasks and a callback to process_synthesized_speech
+    chord(tasks)(process_synthesized_speech.s())
+
+
+    # Create a list of dictionaries
+    return [{'chunks': result['refined_script'], 'audioBase64': result['audioBase64']} for result in results]
+
+
+
+@celery.task(bind=True)
+def process_synthesized_speech(self, results):
+    subtitle_timings = []
+    current_time = 0
+
+    # Iterate over the results
+    for result in results:
+        # Extract the audioBase64 and chunk from the result
         audio_base64 = result.get('audioBase64')
+        chunk = result.get('refined_script')
 
         # Decode the base64 string back into bytes
         if audio_base64 is not None:
-            # Decode the base64 string back into bytes
             audio_bytes = base64.b64decode(audio_base64)
+            audio_data = BytesIO(audio_bytes)
         else:
             # Handle the case when audio_base64 is None
             # For example, you can raise an error or return from the function
-            raise ValueError("audio_base64 is None")
+            raise ValueError("audioBase64 is None")
 
-
-        # Write the bytes to a temporary file
-        with tempfile.NamedTemporaryFile(delete=True) as temp_audio_file:
-            temp_audio_file.write(audio_bytes)
-            temp_audio_file.flush()
-
-            # Get the duration of the audio
-            duration = get_audio_duration(temp_audio_file.name)
+        # Get the duration of the audio
+        duration = get_audio_duration(audio_data)
 
         # Calculate the end_time
         end_time = current_time + duration

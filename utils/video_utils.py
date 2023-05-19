@@ -5,14 +5,15 @@ import requests
 import base64
 import numpy as np
 import os
+import tempfile
 from moviepy.editor import TextClip, CompositeVideoClip, ColorClip
 from io import BytesIO
 from PIL import Image
 from pathlib import Path
-from utils.subtitle_utils import split_sentences, generate_subtitle_timings
+from utils.subtitle_utils import split_sentences, generate_subtitle_timings, get_audio_duration
 from utils.polly_utils import synthesize_speech
 from utils.s3_utils import upload_to_s3
-
+from celery import group
 
 def resize_image(image, width=1280, height=720):
     aspect_ratio = image.width / image.height
@@ -87,6 +88,53 @@ def add_subtitles_to_video(video, subtitle_timings, subtitle_clips):
     final_video = CompositeVideoClip([video] + subtitle_clips)
     return final_video
 
+@celery.task(bind=True)
+def process_results(self, data):
+    # Initialize the subtitle_timings list and the current_time
+    subtitle_timings = []
+    current_time = 0
+    chunks = data.get('chunks')
+
+    # Create a group of tasks
+    tasks = group(synthesize_speech.s({'refined_script': chunk}) for chunk in chunks)
+
+    # Execute the group of tasks and get the results
+    results = tasks.apply_async().get()
+
+    # Iterate over the results and chunks
+    for result, chunk in zip(results, chunks):
+        # Extract the audioBase64 from the result
+        audio_base64 = result.get('audioBase64')
+
+        # Decode the base64 string back into bytes
+        if audio_base64 is not None:
+            # Decode the base64 string back into bytes
+            audio_bytes = base64.b64decode(audio_base64)
+        else:
+            # Handle the case when audio_base64 is None
+            # For example, you can raise an error or return from the function
+            raise ValueError("audio_base64 is None")
+
+
+        # Write the bytes to a temporary file
+        with tempfile.NamedTemporaryFile(delete=True) as temp_audio_file:
+            temp_audio_file.write(audio_bytes)
+            temp_audio_file.flush()
+
+            # Get the duration of the audio
+            duration = get_audio_duration(temp_audio_file.name)
+
+        # Calculate the end_time
+        end_time = current_time + duration
+
+        # Append the current_time, end_time, and chunk to the subtitle_timings list
+        subtitle_timings.append([current_time, end_time, chunk])
+
+        # Update the current_time
+        current_time = end_time
+
+    # Return the subtitle_timings
+    return subtitle_timings
 
 @celery.task(bind=True)
 def create_video(self, result_of_previous_task):
@@ -96,11 +144,14 @@ def create_video(self, result_of_previous_task):
     generated_text = result_of_previous_task.get('refined_script')
     show_subtitles = result_of_previous_task.get('showSubtitles')
     output_file = result_of_previous_task.get('output_file')
-    
+
     clips = []
     print("HERE IS GENERATED TEXT:", generated_text)
     sentences = split_sentences(generated_text)
-    subtitle_timings = generate_subtitle_timings(sentences, synthesize_speech)
+
+    from utils.subtitle_utils import generate_subtitle_timings
+    subtitle_timings = generate_subtitle_timings.delay(sentences).get()
+
     background = Image.new("RGB", (1280, 720), color="black")
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -124,7 +175,7 @@ def create_video(self, result_of_previous_task):
 
     concatenated_clip = mp.concatenate_videoclips(clips)
 
-    print(f"show_subtitles: {show_subtitles}")  # Print the value of show_subtitles
+    print(f"show_subtitles: {show_subtitles}") 
 
     if show_subtitles:
         print(
@@ -150,7 +201,7 @@ def create_video(self, result_of_previous_task):
     audio_temp_file = temp_dir / "temp_audio.wav"
     with open(audio_temp_file, "wb") as f:
         f.write(audio_data)
-
+        
     audioclip = mp.AudioFileClip(str(audio_temp_file))
 
     final_clip = final_clip.set_audio(audioclip)
@@ -182,14 +233,12 @@ def create_video(self, result_of_previous_task):
     if temp_audio_path.exists():
         temp_audio_path.unlink()
 
-        # Save the video to AWS S3
-    object_name = "video.mp4"
+    # Save the video to AWS S3
+    object_name ="video.mp4"
     s3_video_url = upload_to_s3(output_file, object_name)
 
     # Remove the temporary output file
-    # Remove the temporary output file
     os.remove(Path(output_file))
-
 
     # Return the video URL
     return s3_video_url

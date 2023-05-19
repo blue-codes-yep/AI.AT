@@ -22,7 +22,9 @@ from utils import (
     create_video,
     upload_to_s3,
     get_unsplash_image_urls,
-    celery
+    celery,
+    process_results,
+    generate_subtitle_timings,
 )
 
 main_bp = Blueprint("main", __name__)
@@ -42,7 +44,7 @@ def start():
 
     # Define the output path
     output_path = Path("/home/blue/AiProj/AI.AT/utils/temp")
-    output_file = output_path / "video.mp4"
+    output_file = str(output_path / "video.mp4") 
 
     # Get the required data for the tasks
     image_urls = data.get("image_results")
@@ -53,7 +55,9 @@ def start():
     task_chain = chain(
         run_all_chains.s(prompt),
         synthesize_speech.s(),
-        create_video.s()
+        generate_subtitle_timings.s(),
+        process_results.s(),
+        create_video.s(output_file=output_file, show_subtitles=show_subtitles)
     )
 
     # Start the chain
@@ -61,7 +65,6 @@ def start():
 
     # Return the task ID in the response
     return jsonify({'task_id': task.id}), 202
-
 
 @main_bp.route("/api/status/<task_id>", methods=["GET"])
 def status(task_id):

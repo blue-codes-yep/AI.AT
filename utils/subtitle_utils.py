@@ -6,7 +6,8 @@ from io import BytesIO
 
 nlp = spacy.load("en_core_web_sm")
 
-def split_text_into_chunks(text, max_length):
+def split_text_into_chunks(result_of_previous_task, max_length):
+    text = result_of_previous_task.get('refined_script')
     words = text.split()
     chunks = []
     current_chunk = []
@@ -21,7 +22,8 @@ def split_text_into_chunks(text, max_length):
     chunks.append(' '.join(current_chunk))
     return chunks
 
-def split_sentences(text):
+def split_sentences(result_of_previous_task):
+    text = result_of_previous_task.get('refined_script')
     doc = nlp(text)
     sentences = [sent.text for sent in doc.sents]
     return sentences

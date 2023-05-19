@@ -17,9 +17,9 @@ polly_client = boto3.client(
 )
 
 @celery.task(bind=True)
-def synthesize_speech(self, result_of_previous_task, text_result):
-    text = text_result.get('refined_script')
-    print(f"Called synthesize_speech with arguments: {self}, {text}")
+def synthesize_speech(self, result_of_previous_task):
+    text = result_of_previous_task.get('refined_script')
+    print(f"synthesize_speech input: {result_of_previous_task}")
     response = polly_client.synthesize_speech(
         Text=text, OutputFormat="pcm", VoiceId="Joanna"
     )
@@ -42,5 +42,8 @@ def synthesize_speech(self, result_of_previous_task, text_result):
 
     self.update_state(state="PROGRESS", meta={"current": 50, "total": 100})
 
+    
+    print(f"synthesize_speech output: {audio_base64}")
     # Return the base64-encoded string
-    return audio_base64
+    return {'audioBase64': audio_base64, 'refined_script': text}
+

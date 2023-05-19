@@ -26,7 +26,7 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_key
 os.environ["AWS_DEFAULT_REGION"] = aws_region
 
 # LLMs
-llm = OpenAI(temperature=0.3, max_tokens=500, model_name="text-davinci-003")
+llm = OpenAI(temperature=0.3, max_tokens=100, model_name="text-davinci-003")
 
 # Memory
 conv_memory = ConversationBufferMemory()

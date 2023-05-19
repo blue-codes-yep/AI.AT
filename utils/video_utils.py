@@ -89,19 +89,16 @@ def add_subtitles_to_video(video, subtitle_timings, subtitle_clips):
 
 
 @celery.task(bind=True)
-def create_video(
-    self,
-    image_urls,
-    audio_base64,
-    generated_text,
-    show_subtitles,
-    output_file,
-    video_size=(1280, 720),
-):
-    self.update_state(state="STARTED")
-
-    output_file = Path(output_file)
+def create_video(self, result_of_previous_task):
+    video_size = (1280, 720)
+    image_urls = result_of_previous_task.get('image_results')
+    audio_base64 = result_of_previous_task.get('audioBase64')
+    generated_text = result_of_previous_task.get('refined_script')
+    show_subtitles = result_of_previous_task.get('showSubtitles')
+    output_file = result_of_previous_task.get('output_file')
+    
     clips = []
+    print("HERE IS GENERATED TEXT:", generated_text)
     sentences = split_sentences(generated_text)
     subtitle_timings = generate_subtitle_timings(sentences, synthesize_speech)
     background = Image.new("RGB", (1280, 720), color="black")
@@ -190,7 +187,9 @@ def create_video(
     s3_video_url = upload_to_s3(output_file, object_name)
 
     # Remove the temporary output file
-    os.remove(output_file)
+    # Remove the temporary output file
+    os.remove(Path(output_file))
+
 
     # Return the video URL
     return s3_video_url

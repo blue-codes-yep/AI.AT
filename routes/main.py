@@ -48,11 +48,12 @@ def start():
     image_urls = data.get("image_results")
     audio_base64 = data.get("audioBase64")
     show_subtitles = data.get("showSubtitles")
+
     # Create a Celery chain that runs the tasks in sequence
     task_chain = chain(
         run_all_chains.s(prompt),
         synthesize_speech.s(),
-        create_video.s(image_urls, audio_base64, show_subtitles, str(output_file))
+        create_video.s()
     )
 
     # Start the chain

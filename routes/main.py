@@ -26,6 +26,7 @@ from utils import (
     process_results,
     generate_subtitle_timings,
     process_synthesized_speech,
+    fetch_image_urls,
 )
 
 main_bp = Blueprint("main", __name__)
@@ -59,7 +60,8 @@ def start():
         generate_subtitle_timings.s(max_chunk_length=45),
         process_results.s(),
         process_synthesized_speech.s(),
-        create_video.s(output_file=output_file, show_subtitles=show_subtitles),
+        fetch_image_urls.s(),
+        create_video.s(),
         upload_to_s3.s(),
     )
 

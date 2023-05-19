@@ -19,7 +19,6 @@ polly_client = boto3.client(
 @celery.task(bind=True)
 def synthesize_speech(self, result_of_previous_task):
     text = result_of_previous_task['refined_script']
-    print(f"synthesize_speech input: {result_of_previous_task}")
     response = polly_client.synthesize_speech(
         Text=text, OutputFormat="pcm", VoiceId="Joanna"
     )
@@ -32,6 +31,9 @@ def synthesize_speech(self, result_of_previous_task):
         audio_data, format="raw", frame_rate=16000, channels=1, sample_width=2
     )
 
+    # Update task state and progress after loading the audio data
+    self.update_state(state="PROGRESS", meta={"current": 50, "total": 100})
+
     # Convert the audio to WAV format and save it to a BytesIO object
     buffer = BytesIO()
     audio.export(buffer, format="wav")
@@ -40,10 +42,8 @@ def synthesize_speech(self, result_of_previous_task):
     # Convert the BytesIO object to a base64-encoded string
     audio_base64 = base64.b64encode(buffer.getvalue()).decode()
 
-    self.update_state(state="PROGRESS", meta={"current": 50, "total": 100})
+    # Update task state and progress after converting the audio to base64
+    self.update_state(state="PROGRESS", meta={"current": 100, "total": 100})
 
-    
-    print(f"synthesize_speech output: {audio_base64}")
     # Return the base64-encoded string
     return {'audioBase64': audio_base64, 'refined_script': text}
-

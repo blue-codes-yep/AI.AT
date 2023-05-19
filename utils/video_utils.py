@@ -13,7 +13,7 @@ from pathlib import Path
 from utils.subtitle_utils import split_sentences, generate_subtitle_timings, get_audio_duration
 from utils.polly_utils import synthesize_speech
 from utils.s3_utils import upload_to_s3
-from celery import chord
+from celery import group
 
 def resize_image(image, width=1280, height=720):
     aspect_ratio = image.width / image.height
@@ -94,31 +94,31 @@ def process_results(self, data):
     subtitle_timings = []
     current_time = 0
     chunks = data.get('chunks')
+    print("HERE IS DATA", data, "HERE IS CHUNKS", chunks)
 
     # Create a group of tasks
-    tasks = [synthesize_speech.apply_async(args=[{'refined_script': chunk}]) for chunk in chunks]
+    tasks = [synthesize_speech.s({'refined_script': chunk}) for chunk in chunks]
 
+    # Apply the group and get the results
+    results = group(*tasks).apply_async().get()
 
-    # Create a chord with the tasks and a callback to process_synthesized_speech
-    chord(tasks)(process_synthesized_speech.s())
-
-
-    # Create a list of dictionaries
-    return [{'chunks': result['refined_script'], 'audioBase64': result['audioBase64']} for result in results]
-
+    # Return the results
+    return results
 
 
 @celery.task(bind=True)
 def process_synthesized_speech(self, results):
     subtitle_timings = []
     current_time = 0
-
+    chunks = []
+    print(f"Results: {results}, type: {type(results)}")
     # Iterate over the results
     for result in results:
         # Extract the audioBase64 and chunk from the result
         audio_base64 = result.get('audioBase64')
         chunk = result.get('refined_script')
 
+        chunks.append(chunk)
         # Decode the base64 string back into bytes
         if audio_base64 is not None:
             audio_bytes = base64.b64decode(audio_base64)
@@ -141,16 +141,22 @@ def process_synthesized_speech(self, results):
         current_time = end_time
 
     # Return the subtitle_timings
-    return subtitle_timings
+    print("Chunks, In Synth", chunks)
+    return {
+        'subtitle_timings': subtitle_timings,
+        'chunks': chunks,
+        'audioBase64': audio_base64
+    }
 
 @celery.task(bind=True)
 def create_video(self, result_of_previous_task):
     video_size = (1280, 720)
-    image_urls = result_of_previous_task.get('image_results')
-    audio_base64 = result_of_previous_task.get('audioBase64')
-    generated_text = result_of_previous_task.get('refined_script')
-    show_subtitles = result_of_previous_task.get('showSubtitles')
-    output_file = result_of_previous_task.get('output_file')
+    data = result_of_previous_task.get('data')
+    image_urls = result_of_previous_task.get('image_urls')
+    audio_base64 = data.get('audioBase64')
+    generated_text = data.get('refined_script')
+    show_subtitles = data.get('showSubtitles')
+    output_file = data.get('output_file')
 
     clips = []
     print("HERE IS GENERATED TEXT:", generated_text)
